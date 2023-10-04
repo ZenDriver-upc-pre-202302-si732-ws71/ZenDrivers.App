@@ -27,38 +27,31 @@ class ListDriver extends StatelessWidget {
     ));
   }
 
-  Widget _driver(BuildContext context, Driver driver) => AppPadding.widget(
-    padding: AppPadding.horAndVer(vertical: 5),
-    child: InkWell(
-      onTap: () => _toDriverView(context, driver),
-      child: Container(
-        decoration: AppDecorations.box(radius: 12),
-        child: ListTile(
-          title: Row(
-            children: <Widget>[
-              ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
-              AppPadding.widget(
-                padding: AppPadding.left(),
-                child: Text("${driver.account.firstname} ${driver.account.lastname}",
-                  style: AppText.title,
-                )
-              )
-            ],
-          ),
-          subtitle: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text("Licenses: ${driver.licenses.length}"),
-              ),
-              Expanded(
-                child: Text("Driver experiences: ${driver.experiences.length}"),
-              )
-            ],
-          ),
+  Widget _driver(BuildContext context, Driver driver) => AppTile(
+    onTap: () => _toDriverView(context, driver),
+    title: Row(
+      children: <Widget>[
+        ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
+        AppPadding.widget(
+            padding: AppPadding.left(),
+            child: Text("${driver.account.firstname} ${driver.account.lastname}",
+              style: AppText.title,
+            )
+        )
+      ],
+    ),
+    subtitle: Row(
+      children: <Widget>[
+        Expanded(
+          child: Text("Licenses: ${driver.licenses.length}"),
         ),
-      ),
+        Expanded(
+          child: Text("Driver experiences: ${driver.experiences.length}"),
+        )
+      ],
     ),
   );
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,23 +174,17 @@ class _DriverExperience extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPadding.widget(
-      padding: AppPadding.horAndVer(vertical: 5),
-      child: Container(
-        decoration: AppDecorations.box(radius: 12),
-        child: ListTile(
-          title: Text(experience.description),
-          subtitle: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text("From: ${_dateFormat.format(experience.startDate)}"),
-              ),
-              Expanded(
-                child: Text("To: ${_dateFormat.format(experience.endDate)}"),
-              )
-            ],
+    return AppTile(
+      title: Text(experience.description),
+      subtitle: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text("From: ${_dateFormat.format(experience.startDate)}"),
           ),
-        ),
+          Expanded(
+            child: Text("To: ${_dateFormat.format(experience.endDate)}"),
+          )
+        ],
       ),
     );
   }
@@ -211,23 +198,17 @@ class _DriverLicense extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPadding.widget(
-      padding: AppPadding.horAndVer(vertical: 5),
-      child: Container(
-        decoration: AppDecorations.box(radius: 12),
-        child: ListTile(
-          title: Text("Category: ${license.category.name}"),
-          subtitle: Row(
-            children: <Widget>[
-              Expanded(
-                child: Text("From: ${_dateFormat.format(license.start)}"),
-              ),
-              Expanded(
-                child: Text("To: ${_dateFormat.format(license.end)}"),
-              )
-            ],
+    return AppTile(
+      title: Text("Category: ${license.category.name}"),
+      subtitle: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text("From: ${_dateFormat.format(license.start)}"),
           ),
-        ),
+          Expanded(
+            child: Text("To: ${_dateFormat.format(license.end)}"),
+          )
+        ],
       ),
     );
   }

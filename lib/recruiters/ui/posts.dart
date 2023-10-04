@@ -253,19 +253,14 @@ class _PostCommentsState extends State<_PostComments> {
   final TextEditingController _commentController = TextEditingController();
   final PostCommentService _postCommentService = PostCommentService();
 
-  Widget _buildComment(PostComment comment) => AppPadding.widget(
+  Widget _buildComment(PostComment comment) => AppTile(
     padding: AppPadding.horAndVer(vertical: 4),
-    child: Container(
-      decoration: AppDecorations.box(),
-      child: ListTile(
-        leading: ImageUtils.avatar(url: comment.account.imageUrl),
-        title: Text(
-          "${comment.account.firstname} ${comment.account.lastname}",
-          style: AppText.bold,
-        ),
-        subtitle: Text(comment.content),
-        trailing: Text(comment.date.timeAgo()),
-      ),
+    subtitle: Text(comment.content),
+    leading: ImageUtils.avatar(url: comment.account.imageUrl),
+    trailing: Text(comment.date.timeAgo()),
+    title: Text(
+      "${comment.account.firstname} ${comment.account.lastname}",
+      style: AppText.bold,
     ),
   );
 
@@ -299,7 +294,10 @@ class _PostCommentsState extends State<_PostComments> {
             onPressed: isSending ? null : _comment,
           ),
         ),
-        ...comments.map((e) => _buildComment(e)),
+        OverFlowColumn(
+          maxItems: 5,
+          items: comments.map((e) => _buildComment(e)),
+        ),
         AppPadding.widget()
       ],
     );

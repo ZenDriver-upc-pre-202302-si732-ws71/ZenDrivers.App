@@ -389,3 +389,44 @@ class _OverFlowColumnState extends State<OverFlowColumn> {
     );
   }
 }
+
+class AppTile extends StatelessWidget {
+  final EdgeInsets? padding;
+  final Widget? title;
+  final Widget? subtitle;
+  final Widget? leading;
+  final Widget? trailing;
+  final double boxRadius;
+  final void Function()? onTap;
+  const AppTile({
+    super.key,
+    this.padding,
+    this.title,
+    this.subtitle,
+    this.leading,
+    this.trailing,
+    this.boxRadius = 12,
+    this.onTap
+  });
+
+  Widget _container() => Container(
+    decoration: AppDecorations.box(radius: boxRadius),
+    child: ListTile(
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      leading: leading,
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+      padding: AppPadding.horAndVer(vertical: 5),
+      child: onTap != null ? InkWell(
+        onTap: onTap,
+        child: _container(),
+      ) : _container()
+    );
+  }
+}
