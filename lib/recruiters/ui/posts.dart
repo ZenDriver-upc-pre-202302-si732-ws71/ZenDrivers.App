@@ -258,7 +258,7 @@ class _PostCommentsState extends State<_PostComments> {
     child: Container(
       decoration: AppDecorations.box(),
       child: ListTile(
-        leading: const Icon(Icons.person),
+        leading: ImageUtils.avatar(url: comment.account.imageUrl),
         title: Text(
           "${comment.account.firstname} ${comment.account.lastname}",
           style: AppText.bold,

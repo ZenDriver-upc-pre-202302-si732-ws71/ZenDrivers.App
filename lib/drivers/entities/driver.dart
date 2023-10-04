@@ -8,7 +8,7 @@ class Driver {
   final List<License> licenses;
   final List<DriverExperience> experiences;
   final int id;
-  final String address;
+  final String? address;
   final DateTime birth;
   final SimpleAccount account;
 
@@ -16,7 +16,7 @@ class Driver {
     required this.licenses,
     required this.experiences,
     required this.id,
-    required this.address,
+    this.address,
     required this.birth,
     required this.account,
   });

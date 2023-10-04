@@ -4,6 +4,7 @@ import 'package:zendrivers/recruiters/ui/home.dart';
 import 'package:zendrivers/recruiters/ui/search.dart';
 import 'package:zendrivers/security/ui/login.dart';
 import 'package:zendrivers/security/ui/profile.dart';
+import 'package:zendrivers/shared/utils/styles.dart';
 
 void main() => runApp(const ZenDriversApp());
 
@@ -50,16 +51,19 @@ class ZenDriversPage extends StatelessWidget {
   List<PersistentBottomNavBarItem> _barItems(BuildContext context) => [
     PersistentBottomNavBarItem(
       icon: const Icon(Icons.home),
+      inactiveIcon: const Icon(Icons.home_outlined),
       activeColorPrimary: Theme.of(context).colorScheme.primary,
       inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
     ),
     PersistentBottomNavBarItem(
-      icon: const Icon(Icons.search_sharp),
+      icon: const Icon(Icons.search),
+      inactiveIcon: const Icon(Icons.search_outlined),
       activeColorPrimary: Theme.of(context).colorScheme.primary,
       inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
     ),
     PersistentBottomNavBarItem(
-      icon: const Icon(Icons.person_outline_outlined),
+      icon: const Icon(Icons.person),
+      inactiveIcon: const Icon(Icons.person_outline_outlined),
       activeColorPrimary: Theme.of(context).colorScheme.primary,
       inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
     )
@@ -73,14 +77,13 @@ class ZenDriversPage extends StatelessWidget {
     hideNavigationBarWhenKeyboardShows: true,
     decoration: NavBarDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      colorBehindNavBar: Theme.of(context).colorScheme.background
+      colorBehindNavBar: Theme.of(context).colorScheme.background,
     ),
-    popAllScreensOnTapAnyTabs: true,
     itemAnimationProperties: const ItemAnimationProperties(
       duration: Duration(milliseconds: 200),
       curve: Curves.ease
     ),
-    navBarStyle: NavBarStyle.style6,
+    navBarStyle: NavBarStyle.style14,
   );
 }
 

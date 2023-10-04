@@ -10,13 +10,14 @@ import 'package:zendrivers/shared/utils/validators.dart';
 
 
 class ZenDrivers {
-  static PreferredSizeWidget bar(BuildContext context, {Widget? leading}) => AppBar(
+  static PreferredSizeWidget bar(BuildContext context, {Widget? leading, String? title}) => AppBar(
     backgroundColor: Theme.of(context).colorScheme.primary,
-    title: const Text("ZenDrivers",
-      style: TextStyle(color: Colors.white),
+    title: Text(title ?? "ZenDrivers",
+      style: const TextStyle(color: Colors.white),
     ),
     titleSpacing: 1,
     leading: leading ?? ZenDrivers.logo(),
+
   );
 
   static Widget logo({double? scale, double? width, double? height}) => Image.asset("assets/icon.png",
@@ -56,6 +57,8 @@ class ZenDrivers {
     icon: Icon(Icons.arrow_back, color: color),
   );
 
+  static String get defaultProfileUrl => "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
+
 }
 
 class ImageUtils {
@@ -75,9 +78,16 @@ class ImageUtils {
     Widget Function(BuildContext, Widget, ImageChunkEvent?)? loading,
     double? width,
     double? height,
-    Widget? defaultWidget}) {
+    Widget? defaultWidget,
+    BoxFit? fit,
+  }) {
     if(url.isValidUrl()) {
-      return Image.network(url, loadingBuilder: loading, width: width, height: height,);
+      return Image.network(url,
+        loadingBuilder: loading,
+        width: width,
+        height: height,
+        fit: fit,
+      );
     }
     return defaultWidget ?? Container();
   }
@@ -259,6 +269,123 @@ class AppDropdown<Ty> extends StatelessWidget {
           hintText: hint
         ),
       ),
+    );
+  }
+}
+
+
+class ShowField extends StatelessWidget {
+  final EdgeInsets? padding;
+  final double? height;
+  final double? width;
+  final Color? background;
+  final Widget text;
+  final double? circularRadius;
+  const ShowField({
+    super.key,
+    this.padding,
+    this.height,
+    this.width,
+    this.background,
+    required this.text,
+    this.circularRadius
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+      padding: padding ?? EdgeInsets.zero,
+      child: Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(circularRadius ?? 5),
+          color: background
+        ),
+        alignment: Alignment.centerLeft,
+        child: text,
+      )
+    );
+  }
+}
+
+
+class OverFlowColumn extends StatefulWidget {
+  final int maxItems;
+  final Iterable<Widget> items;
+  final MainAxisAlignment mainAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
+  const OverFlowColumn({
+    super.key,
+    required this.maxItems,
+    required this.items,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.crossAxisAlignment = CrossAxisAlignment.center
+  });
+
+  @override
+  State<OverFlowColumn> createState() => _OverFlowColumnState();
+}
+
+class _OverFlowColumnState extends State<OverFlowColumn> {
+  late int maxCount;
+  int get max => widget.maxItems;
+  Iterable<Widget> get items => widget.items;
+
+  @override
+  void initState() {
+    super.initState();
+    maxCount = max;
+    _validateCount();
+  }
+
+  void _validateCount() {
+    if (maxCount > items.length) {
+      maxCount = items.length;
+    }
+  }
+
+  void _showMore() {
+    setState(() {
+      maxCount += max;
+      _validateCount();
+    });
+  }
+
+  void _showLess() {
+    setState(() {
+      maxCount -= max;
+      if(maxCount < max) {
+        maxCount = max;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: widget.mainAxisAlignment,
+      crossAxisAlignment: widget.crossAxisAlignment,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        ...items.take(maxCount),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (items.isNotEmpty && maxCount < items.length)
+              TextButton(
+                onPressed: _showMore,
+                child: const Text('View more'),
+              ),
+            if(items.isNotEmpty && maxCount > max)
+              TextButton(
+                onPressed: _showLess,
+                child: const Text("View less"),
+              )
+          ],
+        )
+
+      ],
     );
   }
 }
