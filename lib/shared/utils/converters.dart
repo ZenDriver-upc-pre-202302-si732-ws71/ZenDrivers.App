@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart';
 
-void andThen<Ty extends Object>(Future<Ty> future, {Function(Ty)? then}) =>
+void andThen<Ty extends Object?>(Future<Ty> future, {Function(Ty)? then}) =>
     future.then((value) {
       then != null ? then(value) : {};
     });

@@ -14,8 +14,8 @@ class AppDecorations {
 
 
 class AppPadding {
-  static Widget widget({Widget? child, EdgeInsets padding = const EdgeInsets.all(10)}) => Padding(
-    padding: padding,
+  static Widget widget({Widget? child, EdgeInsets? padding}) => Padding(
+    padding: padding ?? horAndVer(),
     child: child,
   );
 

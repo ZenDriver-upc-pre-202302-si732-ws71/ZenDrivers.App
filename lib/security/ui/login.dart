@@ -48,7 +48,7 @@ class _LoginForm extends StatelessWidget {
   final AccountService _accountService = AccountService();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  _LoginForm({super.key});
+  _LoginForm();
 
   void _signIn(BuildContext context) async {
     if(_formKey.currentState?.validate() ?? false) {
@@ -57,10 +57,7 @@ class _LoginForm extends StatelessWidget {
       appPrint(request.toRawJson());
       andThen(_accountService.login(request), then: (response) {
         if(!response.valid) {
-          showAppToast(
-              context: context,
-              message: response.message
-          );
+          AppToast.show(context,response.message);
         }
         Navegations.replace(context, ZenDriversPage());
       });

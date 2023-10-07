@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:zendrivers/drivers/entities/driver.dart';
 import 'package:zendrivers/recruiters/entities/recruiter.dart';
+import 'package:zendrivers/security/entities/login.dart';
 
 class Account {
   final int id;
@@ -60,7 +61,11 @@ class SimpleAccount {
   final String lastname;
   final String username;
   final String phone;
+  final UserType role;
   final String? imageUrl;
+
+  bool get isDriver => role == UserType.driver;
+  bool get isRecruiter => role == UserType.recruiter;
 
   SimpleAccount({
     required this.id,
@@ -68,6 +73,7 @@ class SimpleAccount {
     required this.lastname,
     required this.username,
     required this.phone,
+    required this.role,
     this.imageUrl,
   });
 
@@ -81,6 +87,7 @@ class SimpleAccount {
     lastname: json["lastname"],
     username: json["username"],
     phone: json["phone"],
+    role: roleFromString(json["role"]),
     imageUrl: json["imageUrl"],
   );
 
@@ -90,6 +97,7 @@ class SimpleAccount {
     "lastname": lastname,
     "username": username,
     "phone": phone,
+    "role": roleToString(role),
     "imageUrl": imageUrl,
   };
 }

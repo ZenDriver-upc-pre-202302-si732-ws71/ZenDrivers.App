@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:icons_plus/icons_plus.dart';
+import 'package:zendrivers/drivers/services/driver.dart';
+import 'package:zendrivers/drivers/ui/drivers.dart';
 import 'package:zendrivers/recruiters/entities/comment.dart';
 import 'package:zendrivers/recruiters/entities/post.dart';
 import 'package:zendrivers/recruiters/services/comment.dart';
+import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/fields.dart' as form;
 import 'package:zendrivers/shared/utils/navigation.dart';
@@ -48,6 +52,7 @@ class PostView extends StatelessWidget {
                         Row(
                           children: <Widget>[
                             ImageUtils.avatar(
+                              url: post.recruiter.account.imageUrl,
                               radius: 16,
                               padding: AppPadding.horAndVer(vertical: 4, horizontal: 2)
                             ),
@@ -248,20 +253,48 @@ class _PostCommentsState extends State<_PostComments> {
   List<PostComment> get comments => post.comments;
   Post get post => widget.post;
   GlobalKey<_PostActionsState> get actionsKey => widget.actionsKey;
+  final _driverService = DriverService();
 
   bool isSending = false;
+  bool isSearchingDriver = false;
   final TextEditingController _commentController = TextEditingController();
   final PostCommentService _postCommentService = PostCommentService();
 
+  Widget _userNames(PostComment comment) => Text(
+    "${comment.account.firstname} ${comment.account.lastname}",
+    style: AppText.bold,
+  );
+
+  void _toDriverProfile(SimpleAccount account) {
+    if(!isSearchingDriver) {
+      isSearchingDriver = true;
+      andThen(_driverService.findByUsername(account.username), then: (value) {
+        if(value != null) {
+          isSearchingDriver = false;
+          ListDriver.toDriverView(context, value);
+        } else {
+          AppToast.show(context, "Invalid username");
+        }
+      });
+    }
+
+  }
+
   Widget _buildComment(PostComment comment) => AppTile(
+    onTap: comment.account.isDriver ? () => _toDriverProfile(comment.account) : null,
     padding: AppPadding.horAndVer(vertical: 4),
     subtitle: Text(comment.content),
     leading: ImageUtils.avatar(url: comment.account.imageUrl),
     trailing: Text(comment.date.timeAgo()),
-    title: Text(
-      "${comment.account.firstname} ${comment.account.lastname}",
-      style: AppText.bold,
-    ),
+    title: comment.account.isDriver ? Row(
+      children: <Widget>[
+        _userNames(comment),
+        AppPadding.widget(
+          padding: AppPadding.left(),
+          child: Text(roleToString(comment.account.role), style: AppText.comment,)
+        )
+      ],
+    ) : _userNames(comment),
   );
 
   void _comment() {

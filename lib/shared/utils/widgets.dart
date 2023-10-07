@@ -95,33 +95,21 @@ class ImageUtils {
   static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding}) {
     final effectiveDefaultIcon = defaultIcon ?? Icon(Icons.person, color: Colors.black, size: radius * 1.5,);
     final effectiveNetworkImage = url != null && url.isValidUrl();
-    return Container(
-      decoration: AppDecorations.circle(color: Colors.grey),
+    return AppPadding.widget(
       padding: padding,
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: radius,
-        backgroundImage: effectiveNetworkImage ? NetworkImage(url) : null,
-        child: effectiveNetworkImage ? null : effectiveDefaultIcon,
+      child: Container(
+        decoration: AppDecorations.circle(color: Colors.grey),
+        child: CircleAvatar(
+          backgroundColor: Colors.transparent,
+          radius: radius,
+          backgroundImage: effectiveNetworkImage ? NetworkImage(url) : null,
+          child: effectiveNetworkImage ? null : effectiveDefaultIcon,
+        ),
       ),
     );
   }
 }
 
-
-
-void showAppToast({required BuildContext context, required String message, StyledToastPosition? position}) {
-  showToast(message,
-    context: context,
-    position: position ?? StyledToastPosition.center,
-    animation: StyledToastAnimation.scale,
-    reverseAnimation: StyledToastAnimation.fade,
-    duration: const Duration(seconds: 4),
-    animDuration: const Duration(seconds: 1),
-    curve: Curves.elasticOut,
-    reverseCurve: Curves.linear,
-  );
-}
 
 class AppButton extends StatelessWidget {
   final EdgeInsets? padding;
@@ -145,12 +133,26 @@ class AppButton extends StatelessWidget {
 class AppToast extends StatelessWidget {
   final String? message;
   final Widget? child;
+
+  static void show(BuildContext context, String message, {StyledToastPosition? position}) {
+    showToast(message,
+      context: context,
+      position: position ?? StyledToastPosition.center,
+      animation: StyledToastAnimation.scale,
+      reverseAnimation: StyledToastAnimation.fade,
+      duration: const Duration(seconds: 4),
+      animDuration: const Duration(seconds: 1),
+      curve: Curves.elasticOut,
+      reverseCurve: Curves.linear,
+    );
+  }
+
   const AppToast({super.key,this.message, this.child});
 
   @override
   Widget build(BuildContext context) {
     if(message != null) {
-      afterBuild(callback: () => showAppToast(context: context, message: message!));
+      afterBuild(callback: () => show(context, message!));
     }
     return Center(child: child);
   }

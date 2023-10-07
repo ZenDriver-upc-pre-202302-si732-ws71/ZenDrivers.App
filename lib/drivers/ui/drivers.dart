@@ -15,11 +15,11 @@ class ListDriver extends StatelessWidget {
 
   const ListDriver({super.key, this.request});
 
-  void _toDriverView(BuildContext context, Driver driver) {
+  static void toDriverView(BuildContext context, Driver driver) {
     Navegations.persistentTo(context, Scaffold(
       appBar: ZenDrivers.bar(context,
         leading: ZenDrivers.back(context),
-        title: "${driver.account.username}'s profile"
+        title: "${driver.account.firstname}'s profile"
       ),
       body: SingleChildScrollView(
         child: _DriverView(driver: driver),
@@ -28,7 +28,7 @@ class ListDriver extends StatelessWidget {
   }
 
   Widget _driver(BuildContext context, Driver driver) => AppTile(
-    onTap: () => _toDriverView(context, driver),
+    onTap: () => toDriverView(context, driver),
     title: Row(
       children: <Widget>[
         ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
@@ -57,8 +57,7 @@ class ListDriver extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppFutureBuilder(
       future: request != null ? _driverService.find(request!) : _driverService.getAll(),
-      builder: (data) {
-        final drivers = List.filled(10, data[0]);
+      builder: (drivers) {
         return SingleChildScrollView(
           child: Column(
             children: [
@@ -80,6 +79,8 @@ class _DriverView extends StatelessWidget {
   void _contactDriver() {
 
   }
+
+  List<Widget> _nothingToShow() => [Text("Nothing to show", style: AppText.paragraph,)];
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +150,7 @@ class _DriverView extends StatelessWidget {
           ),
           OverFlowColumn(
             maxItems: 2,
-            items: driver.experiences.map((e) => _DriverExperience(experience: e)),
+            items: driver.experiences.isNotEmpty ? driver.experiences.map((e) => _DriverExperience(experience: e)) : _nothingToShow(),
           ),
           AppPadding.widget(
             padding: const EdgeInsets.only(top: 8, left: 8),
@@ -157,7 +158,7 @@ class _DriverView extends StatelessWidget {
           ),
           OverFlowColumn(
             maxItems: 2,
-            items: driver.licenses.map((e) => _DriverLicense(license: e)),
+            items: driver.licenses.isNotEmpty ? driver.licenses.map((e) => _DriverLicense(license: e)) : _nothingToShow(),
           )
         ],
       ),
@@ -213,3 +214,5 @@ class _DriverLicense extends StatelessWidget {
     );
   }
 }
+
+

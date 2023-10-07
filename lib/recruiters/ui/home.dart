@@ -35,7 +35,6 @@ class Home extends StatelessWidget {
         body: AppFutureBuilder(
           future: postService.getAll(),
           builder: (posts) {
-            posts.addAll(List.filled(10, posts[0]));
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -62,7 +61,7 @@ class Home extends StatelessWidget {
 
 class _ActionBar extends StatelessWidget {
   final LoginResponse credentials;
-  const _ActionBar({super.key, required this.credentials});
+  const _ActionBar({required this.credentials});
   void _toCreatePost() {
 
   }
