@@ -28,12 +28,12 @@ class Inbox extends StatelessWidget {
     String? initialMessage
   }) {
     Navegations.persistentTo(context,
-        _ConversationView(
-          conversation: conversation,
-          target: target,
-          onBackConversation: onBackConversation,
-          initialMessage: initialMessage,
-        ),
+      widget: _ConversationView(
+        conversation: conversation,
+        target: target,
+        onBackConversation: onBackConversation,
+        initialMessage: initialMessage,
+      ),
       withNavBar: false
     );
   }

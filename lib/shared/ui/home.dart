@@ -12,13 +12,12 @@ import 'package:zendrivers/shared/utils/widgets.dart';
 
 
 class Home extends StatelessWidget {
-
-  PostService get postService => PostService();
-  PostLikeService get likeService => PostLikeService();
+  final PostService postService = PostService();
+  final PostLikeService likeService = PostLikeService();
   AppPreferences get preferences => postService.preferences;
   LoginResponse get credentials => preferences.getCredentials();
 
-  const Home({super.key});
+  Home({super.key});
 
   void clickPostLike(Post source, bool liked) async {
     if(liked) {

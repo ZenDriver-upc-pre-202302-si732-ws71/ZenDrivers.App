@@ -7,7 +7,7 @@ class AppPreferences {
   LoginResponse? _credentials;
 
   bool get isPresent => _preferences != null;
-  bool get hasCredentials => isPresent && _preferences!.containsKey("user");
+  bool get hasCredentials => isPresent && _preferences!.containsKey(credentialsKey);
 
   static String get credentialsKey => "user";
 
@@ -38,10 +38,11 @@ class AppPreferences {
     return _credentials!;
   }
 
-  void removeCredentials({void Function(bool)? then}) {
+  Future<bool> removeCredentials() async {
     if(isPresent){
-      _preferences!.remove(credentialsKey).then(then ?? (value) {});
+      return _preferences!.remove(credentialsKey);
     }
+    return false;
   }
 
 

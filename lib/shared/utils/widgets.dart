@@ -78,13 +78,14 @@ class AppButton extends StatelessWidget {
 
 class AppAsyncButton<Ty extends Object?> extends StatelessWidget {
   final EdgeInsets? padding;
-  final Future<Ty> future;
+  final Future<Ty> Function() future;
   final Widget child;
   final void Function(Ty)? onSuccess;
   final void Function(dynamic)? onError;
   final _controller = AsyncBtnStatesController();
   final double squareDimension;
   AppAsyncButton({super.key, this.padding, required this.future, required this.child, this.onSuccess, this.onError, this.squareDimension = 24});
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +96,7 @@ class AppAsyncButton<Ty extends Object?> extends StatelessWidget {
           onPressed: () async {
             _controller.update(AsyncBtnState.loading);
             try {
-              final response = await future;
+              final response = await future();
               _controller.update(AsyncBtnState.success);
               if(onSuccess != null) {
                 onSuccess!(response);

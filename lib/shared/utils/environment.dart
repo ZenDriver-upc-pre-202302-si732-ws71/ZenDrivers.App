@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
+import 'package:zendrivers/shared/utils/styles.dart';
+import 'package:zendrivers/shared/utils/widgets.dart';
 
 class ZenDrivers {
   static PreferredSizeWidget bar(BuildContext context, {Widget? leading, String? title, Widget? widTitle, List<Widget>? actions}) => AppBar(
@@ -61,5 +63,21 @@ class ZenDrivers {
   static String joinsUrl(List<String> arguments) => "$apiUrl/${arguments.join("/")}";
 
   static void prints<Ty extends Object?>(Ty message, {String debugName = "Zendrivers"}) => print("$debugName: $message");
+
+  static Widget profile(String url, {EdgeInsets? padding, double height = 150, double border=8}) {
+    return AppPadding.widget(
+      padding: padding,
+      child: Container(
+          height: height,
+          decoration: BoxDecorations.box(color: Colors.white),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(border),
+            child: ImageUtils.net(url,
+                fit: BoxFit.fill
+            ),
+          )
+      ),
+    );
+  }
 }
 

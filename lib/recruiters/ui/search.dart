@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:marquee_text/marquee_direction.dart';
 import 'package:marquee_text/marquee_text.dart';
 import 'package:zendrivers/drivers/entities/driver.dart';
 import 'package:zendrivers/drivers/entities/license.dart';
@@ -21,19 +20,21 @@ class Search extends StatelessWidget {
   Search({super.key});
 
   void _listDrivers(BuildContext context, {required String title, DriverFindRequest? request}) {
-    Navegations.persistentTo(context, Scaffold(
-      body: ZenDrivers.sliverScroll(
-        logoLeading: false,
-        title: title,
-        widTitle: MarqueeText(
-          speed: 20,
-          text: TextSpan(text: title),
-          textDirection: TextDirection.rtl,
-          style: const TextStyle(color: Colors.white),
+    Navegations.persistentTo(context,
+      widget: Scaffold(
+        body: ZenDrivers.sliverScroll(
+            logoLeading: false,
+            title: title,
+            widTitle: MarqueeText(
+              speed: 20,
+              text: TextSpan(text: title),
+              textDirection: TextDirection.rtl,
+              style: const TextStyle(color: Colors.white),
+            ),
+            body: ListDriver(request: request,)
         ),
-        body: ListDriver(request: request,)
-      ),
-    ));
+      )
+    );
   }
 
   void _filterDrivers(BuildContext context) {

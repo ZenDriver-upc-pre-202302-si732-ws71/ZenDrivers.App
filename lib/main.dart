@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:zendrivers/communication/ui/inbox.dart';
-import 'package:zendrivers/recruiters/ui/home.dart';
+import 'package:zendrivers/shared/ui/home.dart';
 import 'package:zendrivers/recruiters/ui/search.dart';
 import 'package:zendrivers/security/ui/login.dart';
 import 'package:zendrivers/security/ui/profile.dart';
@@ -41,14 +41,14 @@ class ZenDriversApp extends StatelessWidget {
 }
 
 class ZenDriversPage extends StatelessWidget {
-  final PersistentTabController _controller = PersistentTabController(initialIndex: 2);
+  final PersistentTabController _controller = PersistentTabController(initialIndex: 0);
   ZenDriversPage({super.key});
 
   List<Widget> _screens() => [
-    const Home(),
+    Home(),
     Search(),
     Inbox(),
-    const Profile()
+    Profile()
   ];
 
   PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon}) => PersistentBottomNavBarItem(

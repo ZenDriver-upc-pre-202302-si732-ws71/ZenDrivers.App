@@ -23,15 +23,17 @@ class ListDriver extends StatelessWidget {
   const ListDriver({super.key, this.request});
 
   static void toDriverView(BuildContext context, Driver driver) {
-    Navegations.persistentTo(context, Scaffold(
-      appBar: ZenDrivers.bar(context,
-        leading: ZenDrivers.back(context),
-        title: "${driver.account.firstname}'s profile"
-      ),
-      body: SingleChildScrollView(
-        child: _DriverView(driver: driver),
-      ),
-    ));
+    Navegations.persistentTo(context,
+      widget: Scaffold(
+        appBar: ZenDrivers.bar(context,
+          leading: ZenDrivers.back(context),
+          title: "${driver.account.firstname}'s profile"
+        ),
+        body: SingleChildScrollView(
+          child: _DriverView(driver: driver),
+        ),
+      )
+    );
   }
 
   Widget _driver(BuildContext context, Driver driver) => AppTile(
@@ -96,14 +98,9 @@ class _DriverView extends StatelessWidget {
   Widget _contactDriver(BuildContext context) {
     final credentials = _credentials;
     final request = ConversationRequest(firstUsername: credentials.username, secondUsername: driver.account.username);
-    /*
-    * andThen(_conversationService.getByUsernames(request), then: (value) {
-      ;
-    });
-    * */
 
     return AppAsyncButton(
-      future: _conversationService.getByUsernames(request),
+      future: () => _conversationService.getByUsernames(request),
       child: const Text("Contact"),
       onSuccess: (value) {
         Inbox.toConversationView(context,
@@ -119,10 +116,10 @@ class _DriverView extends StatelessWidget {
 
   Widget _showTextField(String text) => ShowField(
     text: AppPadding.widget(
-        padding: AppPadding.horAndVer(vertical: 5),
-        child: Text(text,
-          style: AppText.paragraph,
-        )
+      padding: AppPadding.horAndVer(vertical: 5),
+      child: Text(text,
+        style: AppText.paragraph,
+      )
     ),
     background: Colors.white,
     padding: AppPadding.right(),
@@ -143,18 +140,8 @@ class _DriverView extends StatelessWidget {
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: AppPadding.widget(
-                    padding: AppPadding.horAndVer(horizontal: 6),
-                    child: Container(
-                      height: 150,
-                      decoration: BoxDecorations.box(color: Colors.white),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: ImageUtils.net(driver.account.imageUrl ?? ZenDrivers.defaultProfileUrl,
-                          fit: BoxFit.cover
-                        ),
-                      )
-                    ),
+                  child: ZenDrivers.profile(driver.account.imageUrl ?? ZenDrivers.defaultProfileUrl,
+                    padding: AppPadding.horAndVer(horizontal: 6)
                   ),
                 ),
                 Expanded(
@@ -167,7 +154,7 @@ class _DriverView extends StatelessWidget {
                       _showFieldSpacer(),
                       _showTextField(driver.account.phone),
                       _showFieldSpacer(),
-                      if(_credentials.username != driver.account.username)
+                      if(_credentials.isRecruiter)
                         _contactDriver(context)
                     ],
                   ),
@@ -176,7 +163,7 @@ class _DriverView extends StatelessWidget {
             ),
           ),
           AppPadding.widget(
-            padding: const EdgeInsets.only(top: 8, left: 8),
+            padding: AppPadding.leftAndRight(),
             child: Text("Work Experiences", style: AppText.title,)
           ),
           OverflowColumn(

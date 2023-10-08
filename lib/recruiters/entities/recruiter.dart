@@ -1,18 +1,19 @@
 import 'dart:convert';
+import 'package:zendrivers/recruiters/entities/company.dart';
 import 'package:zendrivers/security/entities/account.dart';
 
 class Recruiter {
   final int id;
   final String email;
   final String description;
-  final int companyId;
+  final Company company;
   final SimpleAccount account;
 
   Recruiter({
     required this.id,
     required this.email,
     required this.description,
-    required this.companyId,
+    required this.company,
     required this.account,
   });
 
@@ -24,7 +25,7 @@ class Recruiter {
     id: json["id"],
     email: json["email"],
     description: json["description"],
-    companyId: json["companyId"],
+    company: Company.fromJson(json["company"]),
     account: SimpleAccount.fromJson(json["account"]),
   );
 
@@ -32,7 +33,7 @@ class Recruiter {
     "id": id,
     "email": email,
     "description": description,
-    "companyId": companyId,
+    "company": company.toJson(),
     "account": account.toJson(),
   };
 }
@@ -41,13 +42,13 @@ class RecruiterResource {
   final int id;
   final String email;
   final String description;
-  final int companyId;
+  final Company company;
 
   RecruiterResource({
     required this.id,
     required this.email,
     required this.description,
-    required this.companyId,
+    required this.company,
   });
 
   factory RecruiterResource.fromRawJson(String str) => RecruiterResource.fromJson(json.decode(str));
@@ -58,13 +59,13 @@ class RecruiterResource {
     id: json["id"],
     email: json["email"],
     description: json["description"],
-    companyId: json["companyId"],
+    company: Company.fromJson(json["company"]),
   );
 
   Map<String, dynamic> toJson() => {
     "id": id,
     "email": email,
     "description": description,
-    "companyId": companyId,
+    "company": company.toJson(),
   };
 }

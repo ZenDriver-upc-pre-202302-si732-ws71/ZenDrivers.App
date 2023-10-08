@@ -7,7 +7,9 @@ import 'package:zendrivers/drivers/services/driver.dart';
 import 'package:zendrivers/drivers/ui/drivers.dart';
 import 'package:zendrivers/recruiters/entities/comment.dart';
 import 'package:zendrivers/recruiters/entities/post.dart';
+import 'package:zendrivers/recruiters/entities/recruiter.dart';
 import 'package:zendrivers/recruiters/services/comment.dart';
+import 'package:zendrivers/recruiters/ui/profile.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
@@ -33,6 +35,13 @@ class PostView extends StatelessWidget {
     this.postCommented
   });
 
+  Widget _toRecruiterProfileOnTap(BuildContext context, {required Widget child, required Recruiter recruiter}) => GestureDetector(
+    onTap: () => Navegations.persistentTo(context,
+        widget: RecruiterProfile(recruiter: recruiter),
+    ),
+    child: child,
+  );
+
   @override
   Widget build(BuildContext context) {
     return AppPadding.widget(
@@ -52,21 +61,24 @@ class PostView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            ImageUtils.avatar(
-                              url: post.recruiter.account.imageUrl,
-                              radius: 16,
-                              padding: AppPadding.horAndVer(vertical: 4, horizontal: 2)
-                            ),
-                            AppPadding.widget(
-                              padding: AppPadding.leftAndRight(value: 4),
-                              child: Text(
-                                '${post.recruiter.account.firstname} ${post.recruiter.account.lastname}',
-                                style: AppText.title,
+                        _toRecruiterProfileOnTap(context,
+                          recruiter: post.recruiter,
+                          child: Row(
+                            children: <Widget>[
+                              ImageUtils.avatar(
+                                url: post.recruiter.account.imageUrl,
+                                radius: 16,
+                                padding: AppPadding.horAndVer(vertical: 4, horizontal: 2)
+                              ),
+                              AppPadding.widget(
+                                padding: AppPadding.leftAndRight(value: 4),
+                                child: Text(
+                                  '${post.recruiter.account.firstname} ${post.recruiter.account.lastname}',
+                                  style: AppText.title,
+                                )
                               )
-                            )
-                          ],
+                            ],
+                          ),
                         ),
                         Text(
                           post.date.timeAgo(),
@@ -160,19 +172,21 @@ class _PostActionsState extends State<_PostActions> {
   }
 
   void _showComments() {
-    Navegations.persistentTo(context, Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navegations.back(context);
-            update();
-          },
+    Navegations.persistentTo(context,
+      widget: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navegations.back(context);
+              update();
+            },
+          ),
         ),
-      ),
-      body: SingleChildScrollView(child: PostView(post: post, showComments: true)),
-    ));
+        body: SingleChildScrollView(child: PostView(post: post, showComments: true)),
+      )
+    );
   }
 
 
@@ -232,7 +246,7 @@ class _PostActionsState extends State<_PostActions> {
     return SizedBox(
       height: 30,
       child: AppAsyncButton(
-        future: _conversationService.getByUsernames(request),
+        future: () => _conversationService.getByUsernames(request),
         squareDimension: 18,
         child: const Text("Apply"),
         onSuccess: (value) {
@@ -296,8 +310,8 @@ class _PostCommentsState extends State<_PostComments> {
         }
       });
     }
-
   }
+
 
   Widget _buildComment(PostComment comment) => AppTile(
     onTap: comment.account.isDriver ? () => _toDriverProfile(comment.account) : null,
