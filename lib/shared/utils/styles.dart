@@ -8,7 +8,7 @@ class BoxDecorations {
 
   static BoxDecoration search({Color? color, double radius = 30}) => BoxDecoration(
     borderRadius: BorderRadius.circular(radius),
-    color: color ?? Colors.grey[200],
+    color: color ?? Colors.grey[350],
   );
 
   static BoxDecoration circle({Color? color}) => BoxDecoration(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:async_button/async_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -74,6 +75,49 @@ class AppButton extends StatelessWidget {
     );
   }
 }
+
+class AppAsyncButton<Ty extends Object?> extends StatelessWidget {
+  final EdgeInsets? padding;
+  final Future<Ty> Function() future;
+  final Widget child;
+  final void Function(Ty)? onSuccess;
+  final void Function(dynamic)? onError;
+  final _controller = AsyncBtnStatesController();
+  AppAsyncButton({super.key, this.padding, required this.future, required this.child, this.onSuccess, this.onError});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+        padding: padding ?? AppPadding.leftAndRight(),
+        child: AsyncElevatedBtn(
+          asyncBtnStatesController: _controller,
+          onPressed: () async {
+            _controller.update(AsyncBtnState.loading);
+            try {
+              final response = await future();
+              _controller.update(AsyncBtnState.success);
+              if(onSuccess != null) {
+                onSuccess!(response);
+              }
+            } catch(e) {
+              if(onError != null) {
+                onError!(e);
+              }
+            }
+
+          },
+          loadingStyle: const AsyncBtnStateStyle(
+            widget: SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          child: child,
+        )
+    );
+  }
+}
+
 
 
 class AppToast extends StatelessWidget {

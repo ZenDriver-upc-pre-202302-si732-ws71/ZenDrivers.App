@@ -4,6 +4,7 @@ import 'package:zendrivers/shared/utils/converters.dart';
 
 class AppPreferences {
   SharedPreferences? _preferences;
+  LoginResponse? _credentials;
 
   bool get isPresent => _preferences != null;
   bool get hasCredentials => isPresent && _preferences!.containsKey("user");
@@ -33,7 +34,8 @@ class AppPreferences {
     if(!hasCredentials){
       throw Exception("User is not logged");
     }
-    return LoginResponse.fromRawJson(_preferences!.getString(credentialsKey)!);
+    _credentials ??= LoginResponse.fromRawJson(_preferences!.getString(credentialsKey)!);
+    return _credentials!;
   }
 
   void removeCredentials({void Function(bool)? then}) {

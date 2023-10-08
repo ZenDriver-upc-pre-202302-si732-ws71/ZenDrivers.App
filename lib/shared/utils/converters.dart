@@ -64,3 +64,8 @@ extension ResponseExtension on Response {
   bool get isOk => statusCode == HttpStatus.ok;
   bool get isCreated => statusCode == HttpStatus.created;
 }
+
+class MutableObject<Ty extends Object?> {
+  Ty value;
+  MutableObject(this.value);
+}

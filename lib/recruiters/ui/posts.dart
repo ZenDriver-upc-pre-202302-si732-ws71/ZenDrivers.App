@@ -1,5 +1,8 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:icons_plus/icons_plus.dart';
+import 'package:zendrivers/communication/entities/conversation.dart';
+import 'package:zendrivers/communication/services/conversation.dart';
+import 'package:zendrivers/communication/ui/inbox.dart';
 import 'package:zendrivers/drivers/services/driver.dart';
 import 'package:zendrivers/drivers/ui/drivers.dart';
 import 'package:zendrivers/recruiters/entities/comment.dart';
@@ -72,13 +75,20 @@ class PostView extends StatelessWidget {
                       ],
                     )
                   ),
+                  AppPadding.widget(
+                    padding: AppPadding.topAndBottom(value: 4),
+                    child: Text(post.title, style: AppText.bold,)
+                  ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: ImageUtils.net(post.image),
                   ),
-                  Text(
-                    post.description,
-                    style: AppText.bold,
+                  AppPadding.widget(
+                    padding: AppPadding.top(),
+                    child: Text(
+                      post.description,
+                      style: AppText.paragraph,
+                    ),
                   ),
                   _PostActions(
                     key: _actionsKey,
@@ -123,6 +133,8 @@ class _PostActions extends StatefulWidget {
 class _PostActionsState extends State<_PostActions> {
   bool isLiked = false;
   final preferences = AppPreferences();
+  LoginResponse get credentials => preferences.getCredentials();
+  final _conversationService = ConversationService();
 
   Post get post => widget.post;
   bool get showComments => widget.showComments;
@@ -163,6 +175,7 @@ class _PostActionsState extends State<_PostActions> {
     ));
   }
 
+
   List<Widget> _optionsRow() {
     final widgets = <Widget> [
       IconButton(
@@ -190,33 +203,23 @@ class _PostActionsState extends State<_PostActions> {
 
     if(!showComments) {
       widgets.add(IconButton(
-        icon: const Icon(LineAwesome.comment),
+        icon: const Icon(FluentIcons.comment_28_regular),
         onPressed: _showComments,
       ));
       widgets.add(GestureDetector(
         onTap: _showComments,
-        child: Text("${post.comments.length} comments"),
+        child: Text("${post.comments.length} comments", style: AppText.paragraph,),
       ));
     }
     else {
       widgets.add(AppPadding.widget(
         padding: AppPadding.leftAndRight(value: 4),
-        child: Text("${post.comments.length} comments")
+        child: Text("${post.comments.length} comments", style: AppText.paragraph)
       ));
     }
     
     if(isDriver ?? false) {
-      widgets.add(
-        SizedBox(
-          height: 30,
-          child: AppButton(
-            child: const Text("Apply"),
-            onClick: () {
-
-            },
-          ),
-        )
-      );
+      widgets.add(_ContactRecruiter(post: post, credentials: credentials, service: _conversationService));
     }
   
     return widgets;
@@ -226,7 +229,7 @@ class _PostActionsState extends State<_PostActions> {
   @override
   void initState() {
     super.initState();
-    final credentials = preferences.getCredentials();
+
     isLiked = post.likes.any((element) {
       final isLiked = element.account.username == credentials.username;
       if(isLiked) {
@@ -332,6 +335,55 @@ class _PostCommentsState extends State<_PostComments> {
         ),
         AppPadding.widget()
       ],
+    );
+  }
+}
+
+class _ContactRecruiter extends StatefulWidget {
+  final Post post;
+  final LoginResponse credentials;
+  final ConversationService service;
+  const _ContactRecruiter({required this.post, required this.credentials, required this.service});
+
+  @override
+  State<_ContactRecruiter> createState() => _ContactRecruiterState();
+}
+
+class _ContactRecruiterState extends State<_ContactRecruiter> {
+
+  Post get _post => widget.post;
+  LoginResponse get _credentials => widget.credentials;
+  ConversationService get _service => widget.service;
+  bool isSending = false;
+  void _contactRecruiter() {
+    if(!isSending) {
+      setState(() {
+        isSending = true;
+      });
+      final target = _post.recruiter.account;
+      final request = ConversationRequest(firstUsername: _credentials.username, secondUsername: target.username);
+
+      andThen(_service.getByUsernames(request), then: (value) {
+        setState(() {
+          isSending = false;
+        });
+        Inbox.toConversationView(context,
+          target: target,
+          conversation: value ?? Conversation(id: 0, sender: _credentials.toSimpleAccount(), receiver: target, messages: []),
+          initialMessage: "Hello, ${target.firstname}, I want to know more about the post \"${_post.title}\""
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 30,
+      child: AppButton(
+        onClick: isSending ? null : _contactRecruiter,
+        child: isSending ? const CircularProgressIndicator() : Text("Apply", style: AppText.paragraph),
+      ),
     );
   }
 }

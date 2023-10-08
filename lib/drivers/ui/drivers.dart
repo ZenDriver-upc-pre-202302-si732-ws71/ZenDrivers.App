@@ -9,7 +9,6 @@ import 'package:zendrivers/drivers/entities/license.dart';
 import 'package:zendrivers/drivers/services/driver.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
-import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
@@ -94,19 +93,42 @@ class _DriverView extends StatelessWidget {
     return "Hello, ${target.firstname}, do you want to work with our company?";
   }
 
-  void _contactDriver(BuildContext context) {
+  Widget _contactDriver(BuildContext context) {
     final credentials = _credentials;
     final request = ConversationRequest(firstUsername: credentials.username, secondUsername: driver.account.username);
-    andThen(_conversationService.getByUsernames(request), then: (value) {
-      Inbox.toConversationView(context,
-        target: driver.account,
-        conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: driver.account, messages: []),
-        initialMessage: _contactMessage(credentials, driver.account)
-      );
+    /*
+    * andThen(_conversationService.getByUsernames(request), then: (value) {
+      ;
     });
+    * */
+
+    return AppAsyncButton(
+      future: () => _conversationService.getByUsernames(request),
+      child: const Text("Contact"),
+      onSuccess: (value) {
+        Inbox.toConversationView(context,
+          target: driver.account,
+          conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: driver.account, messages: []),
+          initialMessage: _contactMessage(credentials, driver.account)
+        );
+      },
+    );
   }
 
   List<Widget> _nothingToShow() => [Text("Nothing to show", style: AppText.paragraph,)];
+
+  Widget _showTextField(String text) => ShowField(
+    text: AppPadding.widget(
+        padding: AppPadding.horAndVer(vertical: 5),
+        child: Text(text,
+          style: AppText.paragraph,
+        )
+    ),
+    background: Colors.white,
+    padding: AppPadding.right(),
+  );
+
+  Widget _showFieldSpacer() =>  AppPadding.widget(padding: AppPadding.topAndBottom(value: 5));
 
   @override
   Widget build(BuildContext context) {
@@ -138,33 +160,15 @@ class _DriverView extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      ShowField(
-                        text: AppPadding.widget(
-                          padding: AppPadding.horAndVer(vertical: 5),
-                          child: Text(driver.account.firstname,
-                            style: AppText.paragraph,
-                          )
-                        ),
-                        background: Colors.white,
-                        padding: AppPadding.right()
-                      ),
-                      AppPadding.widget(padding: AppPadding.topAndBottom(value: 5)),
-                      ShowField(
-                        text: AppPadding.widget(
-                          padding: AppPadding.horAndVer(vertical: 5),
-                          child: Text(driver.account.lastname,
-                          style: AppText.paragraph,
-                          )
-                        ),
-                        background: Colors.white,
-                        padding: AppPadding.right(),
-                      ),
-                      AppPadding.widget(padding: AppPadding.topAndBottom(value: 5)),
+                      _showFieldSpacer(),
+                      _showTextField(driver.account.firstname),
+                      _showFieldSpacer(),
+                      _showTextField(driver.account.lastname),
+                      _showFieldSpacer(),
+                      _showTextField(driver.account.phone),
+                      _showFieldSpacer(),
                       if(_credentials.username != driver.account.username)
-                        AppButton(
-                          onClick: () => _contactDriver(context),
-                          child: const Text("Contact"),
-                        )
+                        _contactDriver(context)
                     ],
                   ),
                 )
@@ -192,6 +196,7 @@ class _DriverView extends StatelessWidget {
     );
   }
 }
+
 
 
 class _DriverExperience extends StatelessWidget {
