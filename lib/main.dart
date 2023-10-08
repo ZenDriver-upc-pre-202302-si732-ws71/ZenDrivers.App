@@ -46,7 +46,7 @@ class ZenDriversPage extends StatelessWidget {
 
   List<Widget> _screens() => [
     const Home(),
-    const Search(),
+    Search(),
     Inbox(),
     const Profile()
   ];

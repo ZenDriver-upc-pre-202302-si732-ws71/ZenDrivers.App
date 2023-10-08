@@ -43,6 +43,7 @@ dependencies:
   flutter_styled_toast: ^2.2.1
   mask_text_input_formatter: ^2.5.0
   fluentui_system_icons: ^1.1.218
+  marquee_text: ^2.5.0+1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2

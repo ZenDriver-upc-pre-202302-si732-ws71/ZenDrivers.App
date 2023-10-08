@@ -73,7 +73,7 @@ class DriverResource {
 }
 
 class DriverFindRequest {
-  final int yearsOfExperience;
+  int yearsOfExperience;
   final String categoryName;
 
   DriverFindRequest({

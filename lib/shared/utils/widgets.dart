@@ -189,6 +189,8 @@ class AppDropdown<Ty> extends StatelessWidget {
   final String label;
   final String hint;
   final EdgeInsets? padding;
+  final String? Function(Ty?)? validator;
+  final GlobalKey<FormBuilderFieldDecorationState>? dropdownKey;
   const AppDropdown({
     super.key,
     required this.name,
@@ -198,7 +200,9 @@ class AppDropdown<Ty> extends StatelessWidget {
     required this.label,
     required this.hint,
     this.current,
-    this.padding
+    this.padding,
+    this.validator,
+    this.dropdownKey
   });
 
   @override
@@ -206,6 +210,7 @@ class AppDropdown<Ty> extends StatelessWidget {
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: FormBuilderDropdown<Ty>(
+        key: dropdownKey,
         name: name,
         initialValue: current,
         onChanged: onChange,
@@ -216,6 +221,7 @@ class AppDropdown<Ty> extends StatelessWidget {
           labelText: label,
           hintText: hint
         ),
+        validator: validator,
       ),
     );
   }
