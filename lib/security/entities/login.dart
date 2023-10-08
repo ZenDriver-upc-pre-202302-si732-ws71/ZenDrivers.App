@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:zendrivers/security/entities/account.dart';
+
 class LoginRequest {
   final String username;
   final String password;
@@ -69,6 +71,16 @@ class LoginResponse {
     "token": token,
     "role": roleToString(role)
   };
+
+  SimpleAccount toSimpleAccount() => SimpleAccount(
+    id: 0,
+    firstname: firstname,
+    lastname: lastname,
+    username: username,
+    imageUrl: imageUrl,
+    role: role,
+    phone: ""
+  );
 }
 
 enum UserType {

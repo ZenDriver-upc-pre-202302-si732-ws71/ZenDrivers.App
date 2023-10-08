@@ -25,12 +25,15 @@ class Inbox extends StatelessWidget {
     required SimpleAccount target,
     required Conversation conversation,
     void Function()? onBackConversation,
+    String? initialMessage
   }) {
-    Navegations.persistentTo(context, _ConversationView(
-        conversation: conversation,
-        target: target,
-        onBackConversation: onBackConversation,
-      ),
+    Navegations.persistentTo(context,
+        _ConversationView(
+          conversation: conversation,
+          target: target,
+          onBackConversation: onBackConversation,
+          initialMessage: initialMessage,
+        ),
       withNavBar: false
     );
   }
@@ -41,46 +44,49 @@ class Inbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ZenDrivers.sliverScroll(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            AppFutureBuilder(
-              future: _conversationService.getAllByUsername(_credentials.username),
-              builder: (conversations) => Column(
-                children: [
-                  AppPadding.widget(
-                    child: Row(
-                      children: <Widget>[
-                        ImageUtils.avatar(
-                          url: _credentials.imageUrl,
-                          padding: AppPadding.right()
-                        ),
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecorations.search(),
-                            child: fields.TextField(
-                              name: "search",
-                              onChanged: _search,
-                              border: InputBorder.none,
-                              enableBorder: InputBorder.none,
-                              showLabel: false,
-                              prefixIcon: const Icon(FluentIcons.search_28_regular),
-                            ),
+      body: RefreshIndicator(
+        onRefresh: () async => await _conversationsKey.currentState?.update(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              AppFutureBuilder(
+                future: _conversationService.getAllByUsername(_credentials.username),
+                builder: (conversations) => Column(
+                  children: [
+                    AppPadding.widget(
+                      child: Row(
+                        children: <Widget>[
+                          ImageUtils.avatar(
+                            url: _credentials.imageUrl,
+                            padding: AppPadding.right()
                           ),
-                        )
-                      ],
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecorations.search(),
+                              child: fields.TextField(
+                                name: "search",
+                                onChanged: _search,
+                                border: InputBorder.none,
+                                enableBorder: InputBorder.none,
+                                showLabel: false,
+                                prefixIcon: const Icon(FluentIcons.search_28_regular),
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ),
+                    _Conversations(
+                      key: _conversationsKey,
+                      credentials: _credentials,
+                      service: _conversationService,
                     )
-                  ),
-                  _Conversations(
-                    key: _conversationsKey,
-                    credentials: _credentials,
-                    conversations: conversations,
-                  )
-                ],
+                  ],
+                ),
               ),
-            ),
-            AppPadding.widget(padding: AppPadding.top())
-          ],
+              AppPadding.widget(padding: AppPadding.top())
+            ],
+          ),
         ),
       )
     );
@@ -90,8 +96,8 @@ class Inbox extends StatelessWidget {
 
 class _Conversations extends StatefulWidget {
   final LoginResponse credentials;
-  final List<Conversation> conversations;
-  const _Conversations({super.key, required this.credentials, required this.conversations});
+  final ConversationService service;
+  const _Conversations({super.key, required this.credentials, required this.service});
 
   @override
   State<_Conversations> createState() => _ConversationsState();
@@ -99,8 +105,23 @@ class _Conversations extends StatefulWidget {
 
 class _ConversationsState extends State<_Conversations> {
   LoginResponse get _credentials => widget.credentials;
-  List<Conversation> get conversations => widget.conversations;
+  ConversationService get _service => widget.service;
+  List<Conversation> _conversations = [];
   String _findRequest = "";
+
+  void _updateConversations(List<Conversation> value) {
+    if(value.isNotEmpty) {
+      setState(() {
+        _conversations = value;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    andThen(_service.getAllByUsername(_credentials.username), then: _updateConversations);
+  }
 
   Widget _lastMessage(Message message, SimpleAccount account) {
     final effectiveText = (message.account.username == account.username ? "" : "You: ") + message.content;
@@ -119,14 +140,16 @@ class _ConversationsState extends State<_Conversations> {
 
   Iterable<Conversation> _filter() {
     if(_findRequest.isNotEmpty) {
-      return conversations.takeWhile((value) {
+      return _conversations.where((value) {
         final effectiveAccount = value.sender.username == _credentials.username ? value.receiver : value.sender;
         return effectiveAccount.firstname.toLowerCase().contains(_findRequest)
             || effectiveAccount.lastname.toLowerCase().contains(_findRequest);
       });
     }
-    return conversations;
+    return _conversations;
   }
+
+  Future<void> update() async => _updateConversations(await _service.getAllByUsername(_credentials.username));
 
   Widget _buildConversation(BuildContext context, Conversation conversation) {
     final effectiveShowAccount = conversation.sender.username == _credentials.username ? conversation.receiver : conversation.sender;
@@ -163,8 +186,13 @@ class _ConversationView extends StatelessWidget {
   final GlobalKey<_ConversationMessagesState> _messagesKey = GlobalKey();
   final TextEditingController _messageController = TextEditingController();
   final void Function()? onBackConversation;
+  final String? initialMessage;
 
-  _ConversationView({required this.conversation, required this.target, this.onBackConversation});
+  _ConversationView({required this.conversation, required this.target, this.onBackConversation, this.initialMessage}) {
+    if(initialMessage != null) {
+      _messageController.text = initialMessage!;
+    }
+  }
 
   MessageRequest? _createMessage() {
     if(_messageController.text.isEmpty) {

@@ -60,6 +60,6 @@ class ZenDrivers {
 
   static String joinsUrl(List<String> arguments) => "$apiUrl/${arguments.join("/")}";
 
-  static void prints<Ty extends Object>(Ty message, {String debugName = "Zendrivers"}) => print("$debugName: $message");
+  static void prints<Ty extends Object?>(Ty message, {String debugName = "Zendrivers"}) => print("$debugName: $message");
 }
 

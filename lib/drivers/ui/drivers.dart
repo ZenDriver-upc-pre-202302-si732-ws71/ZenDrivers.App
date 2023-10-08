@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:zendrivers/communication/entities/conversation.dart';
+import 'package:zendrivers/communication/services/conversation.dart';
+import 'package:zendrivers/communication/ui/inbox.dart';
 import 'package:zendrivers/drivers/entities/driver.dart';
 import 'package:zendrivers/drivers/entities/experience.dart';
 import 'package:zendrivers/drivers/entities/license.dart';
 import 'package:zendrivers/drivers/services/driver.dart';
+import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/security/entities/login.dart';
+import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
@@ -76,10 +82,28 @@ class ListDriver extends StatelessWidget {
 
 class _DriverView extends StatelessWidget {
   final Driver driver;
-  const _DriverView({required this.driver});
+  final ConversationService _conversationService = ConversationService();
+  LoginResponse get _credentials => _conversationService.preferences.getCredentials();
+  _DriverView({required this.driver});
 
-  void _contactDriver() {
+  String _contactMessage(LoginResponse credentials, SimpleAccount target) {
+    if(credentials.isDriver){
+      return "Hey, ${target.firstname}, how are you?";
+    }
 
+    return "Hello, ${target.firstname}, do you want to work with our company?";
+  }
+
+  void _contactDriver(BuildContext context) {
+    final credentials = _credentials;
+    final request = ConversationRequest(firstUsername: credentials.username, secondUsername: driver.account.username);
+    andThen(_conversationService.getByUsernames(request), then: (value) {
+      Inbox.toConversationView(context,
+        target: driver.account,
+        conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: driver.account, messages: []),
+        initialMessage: _contactMessage(credentials, driver.account)
+      );
+    });
   }
 
   List<Widget> _nothingToShow() => [Text("Nothing to show", style: AppText.paragraph,)];
@@ -136,10 +160,11 @@ class _DriverView extends StatelessWidget {
                         padding: AppPadding.right(),
                       ),
                       AppPadding.widget(padding: AppPadding.topAndBottom(value: 5)),
-                      AppButton(
-                        onClick: _contactDriver,
-                        child: const Text("Contact"),
-                      )
+                      if(_credentials.username != driver.account.username)
+                        AppButton(
+                          onClick: () => _contactDriver(context),
+                          child: const Text("Contact"),
+                        )
                     ],
                   ),
                 )

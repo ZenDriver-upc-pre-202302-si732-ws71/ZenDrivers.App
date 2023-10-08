@@ -11,7 +11,7 @@ class ConversationService extends HttpService {
   Future<List<Conversation>> getAllByUsername(String username) async => await iterableGet(converter: Conversation.fromJson, append: "user/$username");
   Future<Conversation?> getByUsernames(ConversationRequest request) async {
     final uri = Uri(queryParameters: request.toJson());
-    var result = await get(append: uri.path);
+    var result = await get(append: "user?${uri.query}");
     return result.isOk ? Conversation.fromRawJson(result.body) : null;
   }
 }
