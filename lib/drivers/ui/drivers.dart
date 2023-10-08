@@ -103,7 +103,7 @@ class _DriverView extends StatelessWidget {
     * */
 
     return AppAsyncButton(
-      future: () => _conversationService.getByUsernames(request),
+      future: _conversationService.getByUsernames(request),
       child: const Text("Contact"),
       onSuccess: (value) {
         Inbox.toConversationView(context,

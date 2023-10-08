@@ -219,10 +219,31 @@ class _PostActionsState extends State<_PostActions> {
     }
     
     if(isDriver ?? false) {
-      widgets.add(_ContactRecruiter(post: post, credentials: credentials, service: _conversationService));
+      widgets.add(_contactRecruiter());
     }
   
     return widgets;
+  }
+
+  Widget _contactRecruiter() {
+    final target = post.recruiter.account;
+    final request = ConversationRequest(firstUsername: credentials.username, secondUsername: target.username);
+
+    return SizedBox(
+      height: 30,
+      child: AppAsyncButton(
+        future: _conversationService.getByUsernames(request),
+        squareDimension: 18,
+        child: const Text("Apply"),
+        onSuccess: (value) {
+          Inbox.toConversationView(context,
+            target: target,
+            conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: target, messages: []),
+            initialMessage: "Hello, ${target.firstname}, I want to know more about the post \"${post.title}\""
+          );
+        },
+      ),
+    );
   }
 
 
@@ -339,51 +360,3 @@ class _PostCommentsState extends State<_PostComments> {
   }
 }
 
-class _ContactRecruiter extends StatefulWidget {
-  final Post post;
-  final LoginResponse credentials;
-  final ConversationService service;
-  const _ContactRecruiter({required this.post, required this.credentials, required this.service});
-
-  @override
-  State<_ContactRecruiter> createState() => _ContactRecruiterState();
-}
-
-class _ContactRecruiterState extends State<_ContactRecruiter> {
-
-  Post get _post => widget.post;
-  LoginResponse get _credentials => widget.credentials;
-  ConversationService get _service => widget.service;
-  bool isSending = false;
-  void _contactRecruiter() {
-    if(!isSending) {
-      setState(() {
-        isSending = true;
-      });
-      final target = _post.recruiter.account;
-      final request = ConversationRequest(firstUsername: _credentials.username, secondUsername: target.username);
-
-      andThen(_service.getByUsernames(request), then: (value) {
-        setState(() {
-          isSending = false;
-        });
-        Inbox.toConversationView(context,
-          target: target,
-          conversation: value ?? Conversation(id: 0, sender: _credentials.toSimpleAccount(), receiver: target, messages: []),
-          initialMessage: "Hello, ${target.firstname}, I want to know more about the post \"${_post.title}\""
-        );
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      child: AppButton(
-        onClick: isSending ? null : _contactRecruiter,
-        child: isSending ? const CircularProgressIndicator() : Text("Apply", style: AppText.paragraph),
-      ),
-    );
-  }
-}
