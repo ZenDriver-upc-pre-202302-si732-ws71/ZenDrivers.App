@@ -24,6 +24,8 @@ class AppPadding {
     child: child,
   );
 
+  static Widget zeroWidget() => widget(padding: all(value: 0));
+
   static EdgeInsets left({double value = 8}) => EdgeInsets.only(left: value);
   static EdgeInsets right({double value = 8}) => EdgeInsets.only(right: value);
   static EdgeInsets top({double value = 8}) => EdgeInsets.only(top: value);

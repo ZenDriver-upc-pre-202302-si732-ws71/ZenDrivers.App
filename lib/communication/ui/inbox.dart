@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
@@ -23,12 +22,14 @@ class Inbox extends StatelessWidget {
   Inbox({super.key});
 
   static void toConversationView(BuildContext context, {
-    required LoginResponse credentials,
+    required SimpleAccount target,
     required Conversation conversation,
+    void Function()? onBackConversation,
   }) {
     Navegations.persistentTo(context, _ConversationView(
         conversation: conversation,
-        credentials: credentials,
+        target: target,
+        onBackConversation: onBackConversation,
       ),
       withNavBar: false
     );
@@ -131,8 +132,9 @@ class _ConversationsState extends State<_Conversations> {
     final effectiveShowAccount = conversation.sender.username == _credentials.username ? conversation.receiver : conversation.sender;
     return AppTile(
       onTap: () => Inbox.toConversationView(context,
-        credentials: _credentials,
-        conversation: conversation
+        target: effectiveShowAccount,
+        conversation: conversation,
+        onBackConversation: () => search(null)
       ),
       leading: ImageUtils.avatar(url: effectiveShowAccount.imageUrl),
       title: Row(
@@ -155,36 +157,46 @@ class _ConversationsState extends State<_Conversations> {
 }
 
 
-
 class _ConversationView extends StatelessWidget {
   final Conversation conversation;
-  final LoginResponse credentials;
+  final SimpleAccount target;
   final GlobalKey<_ConversationMessagesState> _messagesKey = GlobalKey();
   final TextEditingController _messageController = TextEditingController();
+  final void Function()? onBackConversation;
 
-  _ConversationView({required this.conversation, required this.credentials});
+  _ConversationView({required this.conversation, required this.target, this.onBackConversation});
 
   MessageRequest? _createMessage() {
     if(_messageController.text.isEmpty) {
       return null;
     }
 
-    final effectiveTarget = conversation.sender.username == credentials.username ? conversation.receiver : conversation.sender;
-    final request = MessageRequest(content: _messageController.text, receiverUsername: effectiveTarget.username);
+    final request = MessageRequest(content: _messageController.text, receiverUsername: target.username);
     _messageController.clear();
     return request;
+  }
+
+  void _backConversationCallback() {
+    if(onBackConversation != null) {
+      onBackConversation!();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ZenDrivers.bar(context,
-        leading: ZenDrivers.back(context),
+        leading: ZenDrivers.back(context,
+          onPressed: () {
+            _backConversationCallback();
+            Navegations.back(context);
+          }
+        ),
         widTitle: Row(
           children: <Widget>[
-            ImageUtils.avatar(url: credentials.imageUrl),
+            ImageUtils.avatar(url: target.imageUrl),
             AppPadding.widget(
-              child: Text("${credentials.firstname} ${credentials.lastname}",
+              child: Text("${target.firstname} ${target.lastname}",
                 style: AppText.bold.copyWith(color: Colors.white),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -196,12 +208,10 @@ class _ConversationView extends StatelessWidget {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: SingleChildScrollView(
-              child: _ConversationMessages(
-                key: _messagesKey,
-                messages: conversation.messages,
-                credentials: credentials,
-              ),
+            child: _ConversationMessages(
+              key: _messagesKey,
+              messages: conversation.messages,
+              target: target,
             ),
           ),
           Row(
@@ -239,30 +249,76 @@ class _ConversationView extends StatelessWidget {
 
 class _ConversationMessages extends StatefulWidget {
   final List<Message> messages;
-  final LoginResponse credentials;
-  const _ConversationMessages({super.key, required this.messages, required this.credentials});
+  final SimpleAccount target;
+  const _ConversationMessages({super.key, required this.messages, required this.target});
   @override
   State<_ConversationMessages> createState() => _ConversationMessagesState();
 }
 
 class _ConversationMessagesState extends State<_ConversationMessages> {
   List<Message> get _messages => widget.messages;
-  LoginResponse get _credentials => widget.credentials;
+  SimpleAccount get _target => widget.target;
 
   void addNewMessage(Message message) => setState(() {
     _messages.add(message);
   });
 
+  Widget _space() => Expanded(flex: 2,child: AppPadding.zeroWidget(),);
+
+  Widget _buildMessage(Message message) {
+    final isUser = _target.username != message.account.username;
+    return Row(
+      children: <Widget>[
+        if(isUser)
+          _space(),
+        Expanded(
+          flex: 6,
+          child: AppPadding.widget(
+            padding: AppPadding.horAndVer(vertical: 4),
+            child: Container(
+              padding: AppPadding.horAndVer(vertical: 5),
+              decoration: BoxDecorations.search(radius: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(message.content, style: AppText.paragraph,),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: AppPadding.widget(
+                      padding: AppPadding.top(value: 4),
+                      child: Text(message.date.timeAgo(),
+                        style: AppText.comment,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+        if(!isUser)
+          _space()
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          AppPadding.widget(padding: AppPadding.top()),
+          ..._messages.map((e) => _buildMessage(e))
+        ],
+      ),
+    );
   }
 }
 
 class _MessageSend extends StatefulWidget {
   final MessageRequest? Function() createRequest;
   final void Function(Message) afterSend;
-  const _MessageSend({super.key, required this.createRequest, required this.afterSend});
+  const _MessageSend({required this.createRequest, required this.afterSend});
 
   @override
   State<_MessageSend> createState() => _MessageSendState();
@@ -284,12 +340,7 @@ class _MessageSendState extends State<_MessageSend> {
       setState(() {
         isSending = true;
       });
-      Timer(const Duration(seconds: 2), () {
-        setState(() {
-          isSending = false;
-        });
-      });
-      /*
+
       andThen(_messageService.send(request), then: (value) {
         setState(() {
           isSending = false;
@@ -300,7 +351,7 @@ class _MessageSendState extends State<_MessageSend> {
         }
         _afterSend(value);
       });
-      * */
+
     }
   }
 
