@@ -1,10 +1,12 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:zendrivers/communication/ui/inbox.dart';
 import 'package:zendrivers/recruiters/ui/home.dart';
 import 'package:zendrivers/recruiters/ui/search.dart';
 import 'package:zendrivers/security/ui/login.dart';
 import 'package:zendrivers/security/ui/profile.dart';
-import 'package:zendrivers/shared/utils/styles.dart';
 
 void main() => runApp(const ZenDriversApp());
 
@@ -39,33 +41,39 @@ class ZenDriversApp extends StatelessWidget {
 }
 
 class ZenDriversPage extends StatelessWidget {
-  final PersistentTabController _controller = PersistentTabController(initialIndex: 0);
+  final PersistentTabController _controller = PersistentTabController(initialIndex: 2);
   ZenDriversPage({super.key});
 
   List<Widget> _screens() => [
     const Home(),
     const Search(),
+    Inbox(),
     const Profile()
   ];
 
+  PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon}) => PersistentBottomNavBarItem(
+    icon: icon,
+    inactiveIcon: inactiveIcon,
+    activeColorPrimary: Theme.of(context).colorScheme.primary,
+    inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
+  );
+
   List<PersistentBottomNavBarItem> _barItems(BuildContext context) => [
-    PersistentBottomNavBarItem(
-      icon: const Icon(Icons.home),
-      inactiveIcon: const Icon(Icons.home_outlined),
-      activeColorPrimary: Theme.of(context).colorScheme.primary,
-      inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
+    _barItem(context,
+      icon: const Icon(FluentIcons.home_28_filled),
+      inactiveIcon: const Icon(FluentIcons.home_28_regular),
     ),
-    PersistentBottomNavBarItem(
-      icon: const Icon(Icons.search),
-      inactiveIcon: const Icon(Icons.search_outlined),
-      activeColorPrimary: Theme.of(context).colorScheme.primary,
-      inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
+    _barItem(context,
+      icon: const Icon(FluentIcons.search_28_filled),
+      inactiveIcon: const Icon(FluentIcons.search_28_regular)
     ),
-    PersistentBottomNavBarItem(
-      icon: const Icon(Icons.person),
-      inactiveIcon: const Icon(Icons.person_outline_outlined),
-      activeColorPrimary: Theme.of(context).colorScheme.primary,
-      inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
+    _barItem(context,
+      icon: const Icon(FluentIcons.mail_inbox_28_filled),
+      inactiveIcon: const Icon(FluentIcons.mail_inbox_28_regular)
+    ),
+    _barItem(context,
+      icon: const Icon(FluentIcons.person_28_filled),
+      inactiveIcon: const Icon(FluentIcons.person_28_regular)
     )
   ];
 

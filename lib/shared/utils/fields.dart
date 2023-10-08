@@ -120,7 +120,7 @@ class UsernameField extends StatelessWidget {
 
 class TextField extends StatelessWidget {
   final String name;
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final void Function(String, String?)? onChanged;
   final List<FormFieldValidator<String?>>? validators;
   final String? hint;
@@ -129,11 +129,15 @@ class TextField extends StatelessWidget {
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? formatters;
+  final InputBorder? border;
+  final InputBorder? enableBorder;
+  final bool showLabel;
+  final int? maxLines;
 
   const TextField({
     super.key,
     required this.name,
-    required this.controller,
+    this.controller,
     this.onChanged,
     this.hint,
     this.validators,
@@ -141,7 +145,11 @@ class TextField extends StatelessWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.keyboardType,
-    this.formatters
+    this.formatters,
+    this.border,
+    this.enableBorder,
+    this.showLabel = true,
+    this.maxLines = 1
   });
 
 
@@ -151,6 +159,8 @@ class TextField extends StatelessWidget {
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: FormBuilderTextField(
+        maxLines: maxLines,
+        onTapOutside: (event) => InputFields.unFocus(context),
         controller: controller,
         name: name,
         onChanged: (value) {
@@ -159,10 +169,10 @@ class TextField extends StatelessWidget {
           }
         },
         decoration: InputDecoration(
-          labelText: titleCase,
+          labelText: showLabel ? titleCase : null,
           hintText: hint ?? titleCase,
-          border: InputFields.border,
-          enabledBorder: InputFields.border,
+          border: border ?? InputFields.border,
+          enabledBorder: enableBorder ?? InputFields.border,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon
         ),
@@ -170,6 +180,42 @@ class TextField extends StatelessWidget {
         keyboardType: keyboardType,
         inputFormatters: formatters,
       ),
+    );
+  }
+}
+
+
+class ShowField extends StatelessWidget {
+  final EdgeInsets? padding;
+  final double? height;
+  final double? width;
+  final Color? background;
+  final Widget text;
+  final double? circularRadius;
+  const ShowField({
+    super.key,
+    this.padding,
+    this.height,
+    this.width,
+    this.background,
+    required this.text,
+    this.circularRadius
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+        padding: padding ?? EdgeInsets.zero,
+        child: Container(
+          height: height,
+          width: width,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(circularRadius ?? 5),
+              color: background
+          ),
+          alignment: Alignment.centerLeft,
+          child: text,
+        )
     );
   }
 }

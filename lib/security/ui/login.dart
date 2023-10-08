@@ -22,15 +22,14 @@ class LoginPage extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          ZenDrivers.logo(scale: 1.4),
+          Center(child: ZenDrivers.logo(scale: 1.4)),
           AppFutureBuilder(
             future: _accountService.validatePreferences(),
             timeoutMessage: "Time out request",
             builder: (data) {
-              appPrint(data.valid.toString());
               if(data.valid) {
                 afterBuild(callback: () => Navegations.replace(context, ZenDriversPage()));
-                return Container();
+                return const CircularProgressIndicator();
               }
               return _LoginForm();
             },
@@ -54,7 +53,6 @@ class _LoginForm extends StatelessWidget {
     if(_formKey.currentState?.validate() ?? false) {
       InputFields.unFocus(context);
       final request = LoginRequest(username: _usernameController.text.trim(), password: _passwordController.text.trim());
-      appPrint(request.toRawJson());
       andThen(_accountService.login(request), then: (response) {
         if(!response.valid) {
           AppToast.show(context,response.message);

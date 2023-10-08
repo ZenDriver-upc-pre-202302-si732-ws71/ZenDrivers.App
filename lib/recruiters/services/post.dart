@@ -1,12 +1,12 @@
 import 'package:zendrivers/recruiters/entities/post.dart';
 import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/services/http_service.dart';
-import 'package:zendrivers/shared/utils/environment.dart' as env;
+import 'package:zendrivers/shared/utils/environment.dart';
 
 class PostService extends HttpService {
 
   static final _instance = PostService._internal();
-  PostService._internal() : super(env.joinUrl("posts"));
+  PostService._internal() : super(ZenDrivers.joinUrl("posts"));
   factory PostService() => _instance;
 
   Future<List<Post>> getAll() async => await iterableGet(converter: Post.fromJson);

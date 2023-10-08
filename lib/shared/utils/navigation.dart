@@ -11,4 +11,7 @@ class Navegations {
     pageTransitionAnimation: PageTransitionAnimation.scale,
     withNavBar: withNavBar
   );
+
+  static void persistentReplace(BuildContext context,Widget widget) => Navigator.of(context, rootNavigator: false)
+      .pushReplacement(MaterialPageRoute(builder: (context) => widget));
 }

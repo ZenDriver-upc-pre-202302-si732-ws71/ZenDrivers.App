@@ -47,7 +47,7 @@ class RegisterPage extends StatelessWidget {
     if(_formKey.currentState?.validate() ?? false) {
       form.InputFields.unFocus(context);
       _formKey.currentState?.fields.forEach((key, value) {
-        appPrint(key);
+        ZenDrivers.print(key);
       });
     }
 

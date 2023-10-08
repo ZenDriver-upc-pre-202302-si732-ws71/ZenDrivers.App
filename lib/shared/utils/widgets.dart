@@ -4,62 +4,8 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
-import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/validators.dart';
-
-
-class ZenDrivers {
-  static PreferredSizeWidget bar(BuildContext context, {Widget? leading, String? title}) => AppBar(
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    title: Text(title ?? "ZenDrivers",
-      style: const TextStyle(color: Colors.white),
-    ),
-    titleSpacing: 1,
-    leading: leading ?? ZenDrivers.logo(),
-
-  );
-
-  static Widget logo({double? scale, double? width, double? height}) => Image.asset("assets/icon.png",
-    scale: scale,
-    width: width,
-    height: height,
-  );
-
-  static Widget sliverBar(BuildContext context, {
-    bool? logoLeading,
-    String? title,
-  }) => SliverAppBar(
-    backgroundColor: Theme.of(context).colorScheme.primary,
-    leading: logoLeading ?? true ? ZenDrivers.logo() : ZenDrivers.back(context),
-    title: Text(title ?? "ZenDrivers", style: const TextStyle(color: Colors.white),),
-    titleSpacing: 1,
-    floating: true,
-    snap: true,
-  );
-
-  static Widget sliverScroll({
-    required Widget body,
-    bool? logoLeading,
-    String? title
-  }) => NestedScrollView(
-    headerSliverBuilder: (context, box) => [
-      ZenDrivers.sliverBar(context,
-        logoLeading: logoLeading,
-        title: title
-      )
-    ],
-    body: body,
-  );
-
-  static Widget back(BuildContext context, {void Function()? onPressed, Color color = Colors.white}) => IconButton(
-    onPressed: onPressed ?? () =>  Navegations.back(context),
-    icon: Icon(Icons.arrow_back, color: color),
-  );
-
-  static String get defaultProfileUrl => "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
-
-}
 
 class ImageUtils {
   static Widget loading(BuildContext context, Widget child, ImageChunkEvent? loading) {
@@ -96,9 +42,9 @@ class ImageUtils {
     final effectiveDefaultIcon = defaultIcon ?? Icon(Icons.person, color: Colors.black, size: radius * 1.5,);
     final effectiveNetworkImage = url != null && url.isValidUrl();
     return AppPadding.widget(
-      padding: padding,
+      padding: padding ?? EdgeInsets.zero,
       child: Container(
-        decoration: AppDecorations.circle(color: Colors.grey),
+        decoration: BoxDecorations.circle(color: Colors.grey),
         child: CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: radius,
@@ -276,48 +222,13 @@ class AppDropdown<Ty> extends StatelessWidget {
 }
 
 
-class ShowField extends StatelessWidget {
-  final EdgeInsets? padding;
-  final double? height;
-  final double? width;
-  final Color? background;
-  final Widget text;
-  final double? circularRadius;
-  const ShowField({
-    super.key,
-    this.padding,
-    this.height,
-    this.width,
-    this.background,
-    required this.text,
-    this.circularRadius
-  });
 
-  @override
-  Widget build(BuildContext context) {
-    return AppPadding.widget(
-      padding: padding ?? EdgeInsets.zero,
-      child: Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(circularRadius ?? 5),
-          color: background
-        ),
-        alignment: Alignment.centerLeft,
-        child: text,
-      )
-    );
-  }
-}
-
-
-class OverFlowColumn extends StatefulWidget {
+class OverflowColumn extends StatefulWidget {
   final int maxItems;
   final Iterable<Widget> items;
   final MainAxisAlignment mainAxisAlignment;
   final CrossAxisAlignment crossAxisAlignment;
-  const OverFlowColumn({
+  const OverflowColumn({
     super.key,
     required this.maxItems,
     required this.items,
@@ -326,10 +237,10 @@ class OverFlowColumn extends StatefulWidget {
   });
 
   @override
-  State<OverFlowColumn> createState() => _OverFlowColumnState();
+  State<OverflowColumn> createState() => _OverflowColumnState();
 }
 
-class _OverFlowColumnState extends State<OverFlowColumn> {
+class _OverflowColumnState extends State<OverflowColumn> {
   late int maxCount;
   int get max => widget.maxItems;
   Iterable<Widget> get items => widget.items;
@@ -412,7 +323,7 @@ class AppTile extends StatelessWidget {
   });
 
   Widget _container() => Container(
-    decoration: AppDecorations.box(radius: boxRadius),
+    decoration: BoxDecorations.box(radius: boxRadius),
     child: ListTile(
       title: title,
       subtitle: subtitle,
@@ -424,7 +335,7 @@ class AppTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPadding.widget(
-      padding: AppPadding.horAndVer(vertical: 5),
+      padding: padding ?? AppPadding.horAndVer(vertical: 5),
       child: onTap != null ? InkWell(
         onTap: onTap,
         child: _container(),
@@ -432,3 +343,5 @@ class AppTile extends StatelessWidget {
     );
   }
 }
+
+

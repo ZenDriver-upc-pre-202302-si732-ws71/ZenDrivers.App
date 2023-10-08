@@ -4,6 +4,8 @@ import 'package:zendrivers/drivers/entities/driver.dart';
 import 'package:zendrivers/drivers/entities/experience.dart';
 import 'package:zendrivers/drivers/entities/license.dart';
 import 'package:zendrivers/drivers/services/driver.dart';
+import 'package:zendrivers/shared/utils/environment.dart';
+import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
@@ -99,7 +101,7 @@ class _DriverView extends StatelessWidget {
                     padding: AppPadding.horAndVer(horizontal: 6),
                     child: Container(
                       height: 150,
-                      decoration: AppDecorations.box(color: Colors.white),
+                      decoration: BoxDecorations.box(color: Colors.white),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: ImageUtils.net(driver.account.imageUrl ?? ZenDrivers.defaultProfileUrl,
@@ -148,7 +150,7 @@ class _DriverView extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8, left: 8),
             child: Text("Work Experiences", style: AppText.title,)
           ),
-          OverFlowColumn(
+          OverflowColumn(
             maxItems: 2,
             items: driver.experiences.isNotEmpty ? driver.experiences.map((e) => _DriverExperience(experience: e)) : _nothingToShow(),
           ),
@@ -156,7 +158,7 @@ class _DriverView extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8, left: 8),
             child: Text("Licenses", style: AppText.title,)
           ),
-          OverFlowColumn(
+          OverflowColumn(
             maxItems: 2,
             items: driver.licenses.isNotEmpty ? driver.licenses.map((e) => _DriverLicense(license: e)) : _nothingToShow(),
           )

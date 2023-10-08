@@ -3,8 +3,9 @@ import 'package:zendrivers/recruiters/entities/post.dart';
 import 'package:zendrivers/recruiters/services/post.dart';
 import 'package:zendrivers/recruiters/ui/posts.dart';
 import 'package:zendrivers/security/entities/login.dart';
-import 'package:zendrivers/shared/entities/like.dart';
-import 'package:zendrivers/shared/services/like.dart';
+import 'package:zendrivers/communication/entities/like.dart';
+import 'package:zendrivers/communication/services/like.dart';
+import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/preferences.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
@@ -81,7 +82,7 @@ class _ActionBar extends StatelessWidget {
               child: InkWell(
                 onTap: _toCreatePost,
                 child: Container(
-                  decoration: AppDecorations.box(
+                  decoration: BoxDecorations.box(
                     color: Colors.grey.shade500
                   ),
                   padding: AppPadding.horAndVer(horizontal: 8, vertical: 4),

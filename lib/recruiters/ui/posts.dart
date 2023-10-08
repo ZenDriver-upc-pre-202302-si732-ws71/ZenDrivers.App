@@ -260,11 +260,6 @@ class _PostCommentsState extends State<_PostComments> {
   final TextEditingController _commentController = TextEditingController();
   final PostCommentService _postCommentService = PostCommentService();
 
-  Widget _userNames(PostComment comment) => Text(
-    "${comment.account.firstname} ${comment.account.lastname}",
-    style: AppText.bold,
-  );
-
   void _toDriverProfile(SimpleAccount account) {
     if(!isSearchingDriver) {
       isSearchingDriver = true;
@@ -286,15 +281,18 @@ class _PostCommentsState extends State<_PostComments> {
     subtitle: Text(comment.content),
     leading: ImageUtils.avatar(url: comment.account.imageUrl),
     trailing: Text(comment.date.timeAgo()),
-    title: comment.account.isDriver ? Row(
+    title: Row(
       children: <Widget>[
-        _userNames(comment),
+        Text(
+          "${comment.account.firstname} ${comment.account.lastname}",
+          style: AppText.bold,
+        ),
         AppPadding.widget(
           padding: AppPadding.left(),
           child: Text(roleToString(comment.account.role), style: AppText.comment,)
         )
       ],
-    ) : _userNames(comment),
+    ),
   );
 
   void _comment() {
@@ -322,12 +320,13 @@ class _PostCommentsState extends State<_PostComments> {
           name: "comment",
           padding: AppPadding.horAndVer(),
           controller: _commentController,
+          showLabel: false,
           suffixIcon: IconButton(
             icon: isSending ? const CircularProgressIndicator.adaptive() : const Icon(Icons.send_outlined),
             onPressed: isSending ? null : _comment,
           ),
         ),
-        OverFlowColumn(
+        OverflowColumn(
           maxItems: 5,
           items: comments.map((e) => _buildComment(e)),
         ),

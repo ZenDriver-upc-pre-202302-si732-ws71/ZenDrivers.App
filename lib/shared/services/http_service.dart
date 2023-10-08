@@ -74,7 +74,7 @@ class HttpService {
   Future<List<Ty>> iterableGet<Ty extends Object>(
       {String? append, bool? auth, required Ty Function(Map<String, dynamic>) converter}) async {
     final response = await get(append: append, auth: auth);
-    return response.statusCode == HttpStatus.ok ? response.body.jsonToIter(converter).toList() : List.empty();
+    return response.isOk ? response.body.jsonToIter(converter).toList() : List.empty();
   }
 
 }

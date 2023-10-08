@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
-class AppDecorations {
+class BoxDecorations {
   static BoxDecoration box({Color? color, double radius = 10}) => BoxDecoration(
     border: Border.all(color: color ?? Colors.lightBlueAccent),
     borderRadius: BorderRadius.all(Radius.circular(radius)),
   );
 
-  static BoxDecoration circle({Color? color, double radius = 10}) => BoxDecoration(
+  static BoxDecoration search({Color? color, double radius = 30}) => BoxDecoration(
+    borderRadius: BorderRadius.circular(radius),
+    color: color ?? Colors.grey[200],
+  );
+
+  static BoxDecoration circle({Color? color}) => BoxDecoration(
     shape: BoxShape.circle,
     border: Border.all(color: color ?? Colors.lightBlueAccent),
   );
@@ -39,7 +44,7 @@ class AppText {
   );
 
   static TextStyle get paragraph => const TextStyle(
-    fontSize: 14
+    fontSize: 13
   );
 }
 

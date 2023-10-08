@@ -4,13 +4,12 @@ import 'package:zendrivers/security/entities/register.dart';
 import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/services/http_service.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
-import 'package:zendrivers/shared/utils/environment.dart' as env;
 import 'package:zendrivers/shared/utils/environment.dart';
 
 class AccountService extends HttpService {
 
   static final _instance = AccountService._internal();
-  AccountService._internal() : super(env.joinUrl("users"));
+  AccountService._internal() : super(ZenDrivers.joinUrl("users"));
   factory AccountService() => _instance;
 
   Future<MessageResponse> login(LoginRequest request) async {

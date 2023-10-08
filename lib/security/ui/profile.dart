@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zendrivers/security/ui/login.dart';
+import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/preferences.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
@@ -10,7 +11,7 @@ class Profile extends StatelessWidget {
   void _logout(BuildContext context) {
     AppPreferences preferences = AppPreferences();
     preferences.removeCredentials(then: (removed) {
-      Navegations.persistentTo(context, LoginPage(), withNavBar: false);
+      Navegations.persistentReplace(context, LoginPage());
     });
   }
 

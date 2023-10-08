@@ -9,10 +9,10 @@ class Account {
   final String lastname;
   final String username;
   final String phone;
-  final String role;
+  final UserType role;
   final String imageUrl;
-  final RecruiterResource recruiter;
-  final DriverResource driver;
+  final RecruiterResource? recruiter;
+  final DriverResource? driver;
 
   Account({
     required this.id,
@@ -22,8 +22,8 @@ class Account {
     required this.phone,
     required this.role,
     required this.imageUrl,
-    required this.recruiter,
-    required this.driver,
+    this.recruiter,
+    this.driver,
   });
 
   factory Account.fromRawJson(String str) => Account.fromJson(json.decode(str));
@@ -36,10 +36,10 @@ class Account {
     lastname: json["lastname"],
     username: json["username"],
     phone: json["phone"],
-    role: json["role"],
+    role: roleFromString(json["role"]),
     imageUrl: json["imageUrl"],
-    recruiter: RecruiterResource.fromJson(json["recruiter"]),
-    driver: DriverResource.fromJson(json["driver"]),
+    recruiter: json["recruiter"] != null ? RecruiterResource.fromJson(json["recruiter"]) : null,
+    driver: json["driver"] != null ? DriverResource.fromJson(json["driver"]) : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -49,9 +49,9 @@ class Account {
     "username": username,
     "phone": phone,
     "imageUrl": imageUrl,
-    "role": role,
-    "recruiter": recruiter.toJson(),
-    "driver": driver.toJson(),
+    "role": roleToString(role),
+    "recruiter": recruiter?.toJson(),
+    "driver": driver?.toJson(),
   };
 }
 
