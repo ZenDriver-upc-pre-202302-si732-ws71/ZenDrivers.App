@@ -11,6 +11,7 @@ class _ConversationMessages extends StatefulWidget {
 class _ConversationMessagesState extends State<_ConversationMessages> {
   List<Message> get _messages => widget.messages;
   SimpleAccount get _target => widget.target;
+
   final _messagesController = ScrollController();
   final _hourFormat = DateFormat("hh:mm a");
   final _yearFormat = DateFormat("MMMM dd, yyyy");
@@ -42,7 +43,7 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
     );
   }
 
-  Widget _messageDate(DateTime? previousDate, DateTime currentDate) {
+  Widget _messageDate(DateTime? previousDate, DateTime currentDate, bool nextIsOther) {
     bool isDifferentDate = false;
     String effectiveDate = _yearFormat.format(currentDate);
     if(previousDate == null || (_yearFormat.format(previousDate) != effectiveDate)) {
@@ -61,7 +62,7 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
 
 
     return isDifferentDate ? AppPadding.widget(
-      padding: AppPadding.bottom(value: 5),
+      padding: nextIsOther ? AppPadding.top() : AppPadding.topAndBottom(value: 2),
       child: Center(
         child: Container(
           decoration: BoxDecorations.search(radius: 18),
@@ -86,7 +87,7 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _messageDate(entry.key == 0 ? null : _messages[entry.key - 1].date, actual.date),
+          _messageDate(entry.key == 0 ? null : _messages[entry.key - 1].date, actual.date, isLastMessageOrDifferentUser),
           _buildMessage(context, actual, isLastMessageOrDifferentUser),
         ],
       );

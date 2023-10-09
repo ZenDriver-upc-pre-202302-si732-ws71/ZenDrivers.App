@@ -59,29 +59,33 @@ class ZenDriversPage extends StatelessWidget {
     AccountProfile()
   ];
 
-  PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon}) => PersistentBottomNavBarItem(
+  PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon, String? title}) => PersistentBottomNavBarItem(
     icon: icon,
     inactiveIcon: inactiveIcon,
     activeColorPrimary: Theme.of(context).colorScheme.primary,
-    inactiveColorPrimary: Theme.of(context).colorScheme.secondary,
+    inactiveColorPrimary: Theme.of(context).colorScheme.primary,
   );
 
   List<PersistentBottomNavBarItem> _barItems(BuildContext context) => [
     _barItem(context,
       icon: const Icon(FluentIcons.home_28_filled),
       inactiveIcon: const Icon(FluentIcons.home_28_regular),
+      title: "Home"
     ),
     _barItem(context,
       icon: const Icon(FluentIcons.search_28_filled),
-      inactiveIcon: const Icon(FluentIcons.search_28_regular)
+      inactiveIcon: const Icon(FluentIcons.search_28_regular),
+      title: "Search"
     ),
     _barItem(context,
       icon: const Icon(FluentIcons.mail_inbox_28_filled),
-      inactiveIcon: const Icon(FluentIcons.mail_inbox_28_regular)
+      inactiveIcon: const Icon(FluentIcons.mail_inbox_28_regular),
+      title: "Messages"
     ),
     _barItem(context,
       icon: const Icon(FluentIcons.person_28_filled),
-      inactiveIcon: const Icon(FluentIcons.person_28_regular)
+      inactiveIcon: const Icon(FluentIcons.person_28_regular),
+      title: "Profile"
     )
   ];
 

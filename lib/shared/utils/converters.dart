@@ -30,13 +30,24 @@ extension StringCasingExtension on String {
 }
 
 extension IterableDynamicExtensions on Iterable {
-  List<Ty> jsonIterToList<Ty extends Object>(Ty Function(Map<String, dynamic>) converter) => map((e) => converter(e)).toList();
+  List<Ty> jsonIterToList<Ty extends Object?>(Ty Function(Map<String, dynamic>) converter) => map((e) => converter(e)).toList();
 
 }
 
-extension IterableExtensions<Ty extends Object> on Iterable<Ty> {
+extension IterableExtensions<Ty extends Object?> on Iterable<Ty> {
   List<Map<String, dynamic>> iterToJsonList(Map<String, dynamic> Function(Ty) converter) => map((e) => converter(e)).toList();
+  Iterable<Ty> operator*(Object other) {
+    if(other is int) {
+      final effectiveIterable = <Ty>[];
+      for(int i = 0; i < other; i++) {
+        effectiveIterable.addAll(List.from(this));
+      }
+      return effectiveIterable;
+    }
+    return this;
+  }
 }
+
 
 extension DateTimeExtension on DateTime {
   String timeAgo() {
@@ -57,6 +68,7 @@ extension DateTimeExtension on DateTime {
   }
 
 }
+
 
 extension ResponseExtension on Response {
   bool get isOk => statusCode == HttpStatus.ok;

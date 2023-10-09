@@ -90,9 +90,14 @@ class _ConversationsState extends State<_Conversations> {
     );
   }
   @override
-  Widget build(BuildContext context) => Column(
-    children: _filter().map((e) => _buildConversation(context, e)).toList(),
-  );
+  Widget build(BuildContext context) {
+    final items = _filter().toList();
+
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) => _buildConversation(context, items[index]),
+    );
+  }
 }
 
 class _ConversationView extends StatelessWidget {

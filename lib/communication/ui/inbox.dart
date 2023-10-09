@@ -93,12 +93,10 @@ class Inbox extends StatelessWidget {
                     children: [
                       _search(),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: _Conversations(
-                            key: _conversationsKey,
-                            credentials: _credentials,
-                            conversations: conversations,
-                          ),
+                        child: _Conversations(
+                          key: _conversationsKey,
+                          credentials: _credentials,
+                          conversations: conversations,
                         ),
                       ),
                       AppPadding.widget(padding: AppPadding.bottom())
