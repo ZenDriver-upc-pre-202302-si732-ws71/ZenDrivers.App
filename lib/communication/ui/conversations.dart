@@ -84,7 +84,7 @@ class _ConversationsState extends State<_Conversations> {
             child: _lastMessage(lastMessage, effectiveShowAccount),
           ),
           AppPadding.widget(padding: AppPadding.right()),
-          Text(lastMessage.date.timeAgo(), style: AppText.comment,)
+          Text(lastMessage.date.timeAgo().toCapitalized(), style: AppText.comment,)
         ],
       ),
     );

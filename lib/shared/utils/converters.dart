@@ -2,12 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-
-void andThen<Ty extends Object?>(Future<Ty> future, {Function(Ty)? then}) =>
-    future.then((value) {
-      then != null ? then(value) : {};
-    });
-
+import 'package:zendrivers/shared/utils/environment.dart';
 
 extension StringCasingExtension on String {
   String toCapitalized() => length > 0 ?'${this[0].toUpperCase()}${substring(1).toLowerCase()}':'';
@@ -48,23 +43,51 @@ extension IterableExtensions<Ty extends Object?> on Iterable<Ty> {
   }
 }
 
+class DateFormatters {
+  static DateFormat get hoursTime => DateFormat("hh:mm a");
+  static DateFormat get dateTime => DateFormat("MM/dd/y, hh:mm a");
+  static DateFormat get weekdayTime => DateFormat("${DateFormat.WEEKDAY}, hh:mm a");
+}
 
 extension DateTimeExtension on DateTime {
-  String timeAgo() {
-    final difference = DateTime.now().difference(this);
-    if (difference.inDays >= 2) {
-      return DateFormat("dd/mm/yyyy, hh:mm a").format(this).toLowerCase();
-    } else if (difference.inDays >= 1) {
-      return 'Yesterday, ${DateFormat("hh:mm a").format(this).toLowerCase()}';
-    } else if (difference.inHours >= 1) {
-      final hours = difference.inHours;
-      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
-    } else if (difference.inMinutes >= 1) {
-      final minutes = difference.inMinutes;
-      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
-    } else {
-      return 'just now';
+  
+  bool isSameDay(DateTime date) => day == date.day && month == date.month && year == date.year;
+  bool isYesterday(DateTime date) => isSameDay(date.subtract(const Duration(days: 1)));
+  bool isWeekAgo(DateTime date) => isAfter(date.subtract(const Duration(days: 7))) && isBefore(date);
+
+  String timeAgo({
+    DateFormat? weekFormat,
+    DateFormat? weekLaterFormat,
+    DateFormat? hoursFormat,
+    DateFormat? minutesFormat,
+    String? yesterday,
+    String? today,
+  }) {
+    final now = DateTime.now();
+    if(isSameDay(now)) {
+      final diff = now.difference(this);
+      int effectiveTime = diff.inMinutes;
+      if(today != null) {
+        return today;
+      }
+      if(effectiveTime < 1) {
+        return "Just now";
+      }
+      else if(effectiveTime < 60) {
+        return minutesFormat?.format(this) ?? '$effectiveTime ${effectiveTime == 1 ? 'minute' : 'minutes'} ago';
+      }
+      effectiveTime = diff.inHours;
+      return hoursFormat?.format(this) ?? '$effectiveTime ${effectiveTime == 1 ? 'hour' : 'hours'} ago';
     }
+    else if(isYesterday(now)) {
+      return yesterday ?? "Yesterday, ${(hoursFormat ?? DateFormatters.hoursTime).format(this)}";
+    }
+
+    final week = isWeekAgo(now);
+    ZenDrivers.prints(week);
+
+    final effectiveFormatter = week ? (weekFormat ?? DateFormatters.weekdayTime) : (weekLaterFormat ?? DateFormatters.dateTime);
+    return effectiveFormatter.format(this);
   }
 
 }

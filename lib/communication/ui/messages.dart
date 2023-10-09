@@ -48,16 +48,12 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
     String effectiveDate = _yearFormat.format(currentDate);
     if(previousDate == null || (_yearFormat.format(previousDate) != effectiveDate)) {
       isDifferentDate = true;
-      final difference = DateTime.now().difference(currentDate);
-      if(difference.inHours <= 23) {
-        effectiveDate = "Today";
-      }
-      else if(difference.inDays == 1) {
-        effectiveDate = "Yesterday";
-      }
-      else if(difference.inDays <= 6) {
-        effectiveDate = _dayFormat.format(currentDate);
-      }
+      effectiveDate = currentDate.timeAgo(
+        weekFormat: _dayFormat,
+        weekLaterFormat: _yearFormat,
+        yesterday: "Yesterday",
+        today: "Today"
+      );
     }
 
 
