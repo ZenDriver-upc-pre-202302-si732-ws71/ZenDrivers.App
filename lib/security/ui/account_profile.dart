@@ -5,9 +5,9 @@ import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/preferences.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
 
-class Profile extends StatelessWidget {
+class AccountProfile extends StatelessWidget {
   final AppPreferences preferences = AppPreferences();
-  Profile({super.key});
+  AccountProfile({super.key});
 
 
   @override

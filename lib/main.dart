@@ -5,7 +5,7 @@ import 'package:zendrivers/communication/ui/inbox.dart';
 import 'package:zendrivers/shared/ui/home.dart';
 import 'package:zendrivers/recruiters/ui/search.dart';
 import 'package:zendrivers/security/ui/login.dart';
-import 'package:zendrivers/security/ui/profile.dart';
+import 'package:zendrivers/security/ui/account_profile.dart';
 
 void main() => runApp(const ZenDriversApp());
 
@@ -50,7 +50,7 @@ class ZenDriversPage extends StatelessWidget {
     Home(),
     Search(),
     Inbox(),
-    Profile()
+    AccountProfile()
   ];
 
   PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon}) => PersistentBottomNavBarItem(
