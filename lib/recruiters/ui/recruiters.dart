@@ -12,7 +12,7 @@ class ListRecruiters extends StatelessWidget {
   const ListRecruiters({super.key, required this.recruiters, required this.companyName});
 
   Widget _recruiter(BuildContext context, Recruiter recruiter) => AppTile(
-    onTap: () => Navegations.persistentTo(context, widget: RecruiterProfile(recruiter: recruiter, showCompany: false,)),
+    onTap: () => Navegations.persistentTo(context, widget: RecruiterProfile(recruiter: recruiter, companyAction: false,)),
     leading: ImageUtils.avatar(url: recruiter.account.imageUrl),
     title: Text("${recruiter.account.firstname} ${recruiter.account.lastname}"),
   );

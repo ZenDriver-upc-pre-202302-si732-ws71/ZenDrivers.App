@@ -22,7 +22,7 @@ class ListDriver extends StatelessWidget {
 
   const ListDriver({super.key, this.request});
 
-  static void toDriverView(BuildContext context, Driver driver) {
+  static void toDriverView(BuildContext context, Driver driver, {bool showContact = true}) {
     Navegations.persistentTo(context,
       widget: Scaffold(
         appBar: ZenDrivers.bar(context,
@@ -30,7 +30,7 @@ class ListDriver extends StatelessWidget {
           title: "${driver.account.firstname}'s profile"
         ),
         body: SingleChildScrollView(
-          child: _DriverView(driver: driver),
+          child: _DriverView(driver: driver, showContact: showContact,),
         ),
       )
     );
@@ -85,7 +85,8 @@ class _DriverView extends StatelessWidget {
   final Driver driver;
   final ConversationService _conversationService = ConversationService();
   LoginResponse get _credentials => _conversationService.preferences.getCredentials();
-  _DriverView({required this.driver});
+  final bool showContact;
+  _DriverView({required this.driver, this.showContact = true});
 
   String _contactMessage(LoginResponse credentials, SimpleAccount target) {
     if(credentials.isDriver){
@@ -154,7 +155,7 @@ class _DriverView extends StatelessWidget {
                       _showFieldSpacer(),
                       _showTextField(driver.account.phone),
                       _showFieldSpacer(),
-                      if(_credentials.isRecruiter)
+                      if(_credentials.isRecruiter && showContact)
                         _contactDriver(context)
                     ],
                   ),

@@ -1,5 +1,4 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:zendrivers/communication/ui/inbox.dart';
@@ -41,8 +40,11 @@ class ZenDriversApp extends StatelessWidget {
 }
 
 class ZenDriversPage extends StatelessWidget {
-  final PersistentTabController _controller = PersistentTabController(initialIndex: 0);
-  ZenDriversPage({super.key});
+  final int? initialIndex;
+  late final PersistentTabController _controller;
+  ZenDriversPage({super.key, this.initialIndex}) {
+    _controller = PersistentTabController(initialIndex: initialIndex ?? 0);
+  }
 
   List<Widget> _screens() => [
     Home(),

@@ -20,7 +20,7 @@ class Profile extends StatelessWidget {
           child: const Text("Logout"),
           onSuccess: (value) {
             if(value) {
-              Navegations.persistentReplace(context, LoginPage());
+              Navegations.persistentReplace(context, widget: LoginPage());
             }
           },
         ),

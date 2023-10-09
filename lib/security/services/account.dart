@@ -17,7 +17,7 @@ class AccountService extends HttpService {
     if(result.isOk) {
       MessageResponse response = MessageResponse(message: "Login Successfully");
       response.valid = true;
-      preferences.saveLogin(LoginResponse.fromRawJson(result.body));
+      await preferences.saveLogin(LoginResponse.fromRawJson(result.body));
       return response;
     }
     try {

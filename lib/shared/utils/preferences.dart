@@ -21,9 +21,12 @@ class AppPreferences {
   }
   factory AppPreferences() => instance;
 
-  void saveLogin(LoginResponse response) {
+  Future<void> saveLogin(LoginResponse response) async {
     if(isPresent) {
-      andThen(_preferences!.setString(credentialsKey, response.toRawJson()));
+      await _preferences!.setString(credentialsKey, response.toRawJson());
+      _credentials = response;
+    } else {
+      throw Exception("Preferences wasn't loaded");
     }
   }
 

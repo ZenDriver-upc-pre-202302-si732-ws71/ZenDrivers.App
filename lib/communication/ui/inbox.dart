@@ -1,10 +1,16 @@
 
+import 'dart:async';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:zendrivers/communication/entities/conversation.dart';
 import 'package:zendrivers/communication/entities/message.dart';
 import 'package:zendrivers/communication/services/conversation.dart';
 import 'package:zendrivers/communication/services/message.dart';
+import 'package:zendrivers/drivers/services/driver.dart';
+import 'package:zendrivers/drivers/ui/drivers.dart';
+import 'package:zendrivers/recruiters/services/recruiter.dart';
+import 'package:zendrivers/recruiters/ui/profile.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
@@ -34,7 +40,7 @@ class Inbox extends StatelessWidget {
         onBackConversation: onBackConversation,
         initialMessage: initialMessage,
       ),
-      withNavBar: false
+      withNavBar: true
     );
   }
 
@@ -188,9 +194,43 @@ class _ConversationView extends StatelessWidget {
   final void Function()? onBackConversation;
   final String? initialMessage;
 
+  final _recruiterService = RecruiterService();
+  final _driverService = DriverService();
+
+  final _isToProfile = MutableObject(false);
+
   _ConversationView({required this.conversation, required this.target, this.onBackConversation, this.initialMessage}) {
     if(initialMessage != null) {
       _messageController.text = initialMessage!;
+    }
+  }
+
+  void _toProfile(BuildContext context) {
+    if(!_isToProfile.value) {
+      _isToProfile.value = true;
+      if(target.isRecruiter) {
+        andThen(_recruiterService.getByUsername(target.username), then: (value) {
+          _isToProfile.value = false;
+          ZenDrivers.prints(value);
+          if(value != null) {
+            Navegations.persistentTo(context, widget: RecruiterProfile(recruiter: value, companyAction: false,));
+          }
+        });
+      }
+      else if(target.isDriver) {
+        andThen(_driverService.findByUsername(target.username), then: (value) {
+          _isToProfile.value = false;
+          if(value != null) {
+            ListDriver.toDriverView(context, value, showContact: false);
+          }
+        });
+      }
+
+      Timer(const Duration(seconds: 4), () {
+        if(_isToProfile.value) {
+          _isToProfile.value = false;
+        }
+      });
     }
   }
 
@@ -231,7 +271,19 @@ class _ConversationView extends StatelessWidget {
               )
             )
           ],
-        )
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            color: Colors.white,
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'profile',
+                onTap: () => _toProfile(context),
+                child: const Text('View profile'),
+              )
+            ],
+          )
+        ],
       ),
       body: Column(
         children: <Widget>[
@@ -252,12 +304,15 @@ class _ConversationView extends StatelessWidget {
                     child: fields.TextField(
                       controller: _messageController,
                       padding: AppPadding.horAndVer(horizontal: 10, vertical: 0),
+                      keyboardType: TextInputType.multiline,
                       name: "send",
-                      hint: "Write a message",
+                      hint: "Type here your message",
                       showLabel: false,
                       enableBorder: InputBorder.none,
                       border: InputBorder.none,
-                      maxLines: null,
+                      maxLines: 3,
+                      minLines: 1,
+                      textCapitalization: TextCapitalization.sentences,
                     ),
                   ),
                 ),
@@ -267,7 +322,8 @@ class _ConversationView extends StatelessWidget {
                 afterSend: (message) => _messagesKey.currentState?.addNewMessage(message),
               )
             ],
-          )
+          ),
+          AppPadding.widget(padding: AppPadding.top(value: 4))
         ],
       ),
     );
@@ -291,43 +347,31 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
     _messages.add(message);
   });
 
-  Widget _space() => Expanded(flex: 2,child: AppPadding.zeroWidget(),);
-
-  Widget _buildMessage(Message message) {
+  Widget _buildMessage(BuildContext context, Message message, bool nextIsOther) {
     final isUser = _target.username != message.account.username;
-    return Row(
-      children: <Widget>[
-        if(isUser)
-          _space(),
-        Expanded(
-          flex: 6,
-          child: AppPadding.widget(
-            padding: AppPadding.horAndVer(vertical: 4),
-            child: Container(
-              padding: AppPadding.horAndVer(vertical: 5),
-              decoration: BoxDecorations.search(radius: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(message.content, style: AppText.paragraph,),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: AppPadding.widget(
-                      padding: AppPadding.top(value: 4),
-                      child: Text(message.date.timeAgo(),
-                        style: AppText.comment,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-        if(!isUser)
-          _space()
-      ],
+    return AppPadding.widget(
+      padding: isUser ? AppPadding.right(value: 5) : AppPadding.left(value: 5),
+      child: ChatBubble(
+        clipper: isUser ? ChatBubbleClip.sender(last: nextIsOther) : ChatBubbleClip.receiver(last: nextIsOther),
+        alignment: isUser ? Alignment.topRight : null,
+        margin: nextIsOther ? AppPadding.bottom() : AppPadding.bottom(value: 2),
+        backGroundColor: isUser ? Theme.of(context).colorScheme.primary : const Color(0xFFE8E8EE),
+        child: Text(message.content,style: isUser ? AppText.paragraph.copyWith(color: Colors.white) : AppText.paragraph,),
+      ),
     );
+  }
+
+  Iterable<Widget> _buildMessages(BuildContext context) {
+    return _messages.asMap().entries.map((entry) {
+      final actual = entry.value;
+      final nextIndex = entry.key + 1;
+
+      final isLastMessageOrDifferentUser =
+          nextIndex == _messages.length ||
+              actual.account.username != _messages[nextIndex].account.username;
+
+      return _buildMessage(context, actual, isLastMessageOrDifferentUser);
+    });
   }
 
   @override
@@ -336,7 +380,7 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
       child: Column(
         children: <Widget>[
           AppPadding.widget(padding: AppPadding.top()),
-          ..._messages.map((e) => _buildMessage(e))
+          ..._buildMessages(context)
         ],
       ),
     );
@@ -387,7 +431,7 @@ class _MessageSendState extends State<_MessageSend> {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: isSending ? null : _sendMessage,
-      icon: isSending ? const CircularProgressIndicator() : const Icon(FluentIcons.send_32_regular),
+      icon: isSending ? const CircularProgressIndicator() : Icon(FluentIcons.send_32_filled, color: Theme.of(context).colorScheme.primary,),
     );
   }
 }

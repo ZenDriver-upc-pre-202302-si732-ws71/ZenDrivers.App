@@ -133,7 +133,8 @@ class TextField extends StatelessWidget {
   final InputBorder? enableBorder;
   final bool showLabel;
   final int? maxLines;
-
+  final int? minLines;
+  final TextCapitalization textCapitalization;
   const TextField({
     super.key,
     required this.name,
@@ -149,7 +150,9 @@ class TextField extends StatelessWidget {
     this.border,
     this.enableBorder,
     this.showLabel = true,
-    this.maxLines = 1
+    this.maxLines = 1,
+    this.minLines,
+    this.textCapitalization = TextCapitalization.none
   });
 
 
@@ -160,6 +163,8 @@ class TextField extends StatelessWidget {
       padding: padding ?? EdgeInsets.zero,
       child: FormBuilderTextField(
         maxLines: maxLines,
+        minLines: minLines,
+        textCapitalization: textCapitalization,
         onTapOutside: (event) => InputFields.unFocus(context),
         controller: controller,
         name: name,

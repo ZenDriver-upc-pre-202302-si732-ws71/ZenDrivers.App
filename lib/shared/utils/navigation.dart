@@ -12,6 +12,6 @@ class Navegations {
     withNavBar: withNavBar
   );
 
-  static void persistentReplace(BuildContext context,Widget widget) => Navigator.of(context, rootNavigator: true)
+  static void persistentReplace(BuildContext context, {required Widget widget}) => Navigator.of(context, rootNavigator: true)
       .pushReplacement(MaterialPageRoute(builder: (context) => widget));
 }

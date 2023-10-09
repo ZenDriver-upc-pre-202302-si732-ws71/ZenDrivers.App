@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_bubble/chat_bubble.dart';
 
 class BoxDecorations {
   static BoxDecoration box({Color? color, double radius = 10}) => BoxDecoration(
@@ -8,12 +9,27 @@ class BoxDecorations {
 
   static BoxDecoration search({Color? color, double radius = 30}) => BoxDecoration(
     borderRadius: BorderRadius.circular(radius),
-    color: color ?? Colors.grey[350],
+    color: color ?? const Color(0xFFE8E8EE),
   );
 
   static BoxDecoration circle({Color? color}) => BoxDecoration(
     shape: BoxShape.circle,
     border: Border.all(color: color ?? Colors.lightBlueAccent),
+  );
+}
+
+class ChatBubbleClip {
+
+  static CustomClipper<Path> sender({bool last = true}) => ChatBubbleClipper9(
+    type: BubbleType.sendBubble,
+    nipSize: last ? 6 : 4,
+    sizeRatio: last ? 3 : 1
+  );
+
+  static CustomClipper<Path> receiver({bool last = true}) => ChatBubbleClipper10(
+    type: BubbleType.receiverBubble,
+    nipSize: last ? 6 : 4,
+    sizeRatio: last ? 3 : 1
   );
 }
 

@@ -102,11 +102,11 @@ class AppAsyncButton<Ty extends Object?> extends StatelessWidget {
                 onSuccess!(response);
               }
             } catch(e) {
+              _controller.update(AsyncBtnState.idle);
               if(onError != null) {
                 onError!(e);
               }
             }
-
           },
           loadingStyle: AsyncBtnStateStyle(
             widget: SizedBox.square(
@@ -395,5 +395,4 @@ class AppTile extends StatelessWidget {
     );
   }
 }
-
 

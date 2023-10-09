@@ -14,8 +14,8 @@ class RecruiterProfile extends StatelessWidget {
   final Recruiter recruiter;
   final _postService = PostService();
   final _recruiterService = RecruiterService();
-  final bool? showCompany;
-  RecruiterProfile({super.key, required this.recruiter, this.showCompany});
+  final bool companyAction;
+  RecruiterProfile({super.key, required this.recruiter, this.companyAction = true});
 
   Widget _showFieldSpacer() =>  AppPadding.widget(padding: AppPadding.topAndBottom(value: 5));
   Widget _showTextField(String text) => ShowField(
@@ -66,7 +66,7 @@ class RecruiterProfile extends StatelessWidget {
                           _showFieldSpacer(),
                           _showTextField(recruiter.email),
                           _showFieldSpacer(),
-                          if(showCompany ?? true)
+                          if(companyAction)
                             AppAsyncButton(
                               future: () => _recruiterService.getByCompanyId(recruiter.company.id),
                               onSuccess: (value) => Navegations.persistentTo(context, widget: ListRecruiters(
@@ -77,7 +77,11 @@ class RecruiterProfile extends StatelessWidget {
                                 width: 100,
                                 child: Text(recruiter.company.name, overflow: TextOverflow.ellipsis,),
                               ),
-                            )
+                            ),
+                          if(!companyAction)
+                            _showTextField(recruiter.company.name),
+                          if(!companyAction)
+                            _showFieldSpacer(),
                         ],
                       ),
                     )
