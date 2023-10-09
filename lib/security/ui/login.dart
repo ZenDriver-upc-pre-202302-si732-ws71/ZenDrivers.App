@@ -22,7 +22,7 @@ class LoginPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Center(child: ZenDrivers.logo(scale: 1.4)),
-          AppFutureBuilder(
+          RichFutureBuilder(
             future: _accountService.validatePreferences(),
             timeoutMessage: "Time out request",
             builder: (data) {

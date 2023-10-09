@@ -56,7 +56,7 @@ class ListDrivers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppFutureBuilder(
+    return RichFutureBuilder(
       future: request != null ? _driverService.find(request!) : _driverService.getAll(),
       builder: (drivers) {
         return SingleChildScrollView(

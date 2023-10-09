@@ -52,7 +52,7 @@ class _PostActionsState extends State<_PostActions> {
     Navegations.persistentTo(context,
         widget: Scaffold(
           appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            backgroundColor: /*Theme.of(context).colorScheme.secondary*/Colors.transparent,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {

@@ -92,7 +92,7 @@ class RecruiterProfile extends StatelessWidget {
                 padding: AppPadding.leftAndRight(),
                 child: Text("Posts", style: AppText.title,)
               ),
-              AppFutureBuilder(
+              RichFutureBuilder(
                 future: _postService.getFrom(recruiter.account.username),
                 builder: (posts) => posts.isEmpty ? const Text("Nothing to show") : OverflowColumn(
                   maxItems: 5,

@@ -1,5 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 import 'package:zendrivers/communication/ui/inbox.dart';
 import 'package:zendrivers/shared/ui/home.dart';
@@ -7,7 +8,12 @@ import 'package:zendrivers/recruiters/ui/search.dart';
 import 'package:zendrivers/security/ui/login.dart';
 import 'package:zendrivers/security/ui/account_profile.dart';
 
-void main() => runApp(const ZenDriversApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+  runApp(const ZenDriversApp());
+}
 
 class ZenDriversApp extends StatelessWidget {
   const ZenDriversApp({super.key});

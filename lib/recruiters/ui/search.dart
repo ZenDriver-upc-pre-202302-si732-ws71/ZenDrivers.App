@@ -58,7 +58,7 @@ class Search extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ZenDrivers.bar(context),
-      body: AppFutureBuilder(
+      body: RichFutureBuilder(
         future: _licenseCategoryService.getAll(),
         builder: (categories) {
           return Column(

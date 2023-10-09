@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 void andThen<Ty extends Object?>(Future<Ty> future, {Function(Ty)? then}) =>
     future.then((value) {
@@ -39,15 +40,12 @@ extension IterableExtensions<Ty extends Object> on Iterable<Ty> {
 
 extension DateTimeExtension on DateTime {
   String timeAgo() {
-    final now = DateTime.now();
-    final difference = now.difference(this);
+    final difference = DateTime.now().difference(this);
 
-    if (difference.inDays > 30) {
-      final months = (difference.inDays / 30).floor();
-      return '$months ${months == 1 ? 'month' : 'months'} ago';
+    if (difference.inDays >= 2) {
+      return DateFormat("dd/mm/yyyy, hh:mm a").format(this).toLowerCase();
     } else if (difference.inDays >= 1) {
-      final days = difference.inDays;
-      return '$days ${days == 1 ? 'day' : 'days'} ago';
+      return 'Yesterday, ${DateFormat("hh:mm a").format(this).toLowerCase()}';
     } else if (difference.inHours >= 1) {
       final hours = difference.inHours;
       return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
@@ -68,4 +66,6 @@ extension ResponseExtension on Response {
 class MutableObject<Ty extends Object?> {
   Ty value;
   MutableObject(this.value);
+  @override
+  String toString() => value.toString();
 }

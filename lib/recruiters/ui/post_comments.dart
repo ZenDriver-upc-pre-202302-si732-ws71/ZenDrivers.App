@@ -13,13 +13,15 @@ class _PostCommentsState extends State<_PostComments> {
   Post get post => widget.post;
   GlobalKey<_PostActionsState> get actionsKey => widget.actionsKey;
   final _driverService = DriverService();
-
+  final _recruiterService = RecruiterService();
   bool isSending = false;
   final TextEditingController _commentController = TextEditingController();
   final PostCommentService _postCommentService = PostCommentService();
+  final _commentsKey = GlobalKey<OverflowColumnState>();
+
 
   void _toDriverProfile(SimpleAccount account) {
-    andThen(_driverService.findByUsername(account.username), then: (value) {
+    _driverService.findByUsername(account.username).then((value) {
       if(value != null) {
         ListDrivers.toDriverView(context, value);
       } else {
@@ -27,11 +29,14 @@ class _PostCommentsState extends State<_PostComments> {
       }
     });
   }
-  void _toRecruiterProfile(SimpleAccount account) {
 
+  void _toRecruiterProfile(SimpleAccount account) {
+   _recruiterService.getByUsername(account.username).then((value) {
+
+    });
   }
 
-  void _onTapComment(SimpleAccount commentAccount) {
+  void _onCommentTap(SimpleAccount commentAccount) {
     if(commentAccount.isDriver) {
       _toDriverProfile(commentAccount);
     }
@@ -40,9 +45,8 @@ class _PostCommentsState extends State<_PostComments> {
     }
   }
 
-
   Widget _buildComment(PostComment comment) => AppTile(
-    onTap: () => _onTapComment(comment.account),
+    onTap: () => _onCommentTap(comment.account),
     padding: AppPadding.horAndVer(vertical: 4),
     subtitle: Text(comment.content),
     leading: ImageUtils.avatar(url: comment.account.imageUrl),
@@ -67,10 +71,11 @@ class _PostCommentsState extends State<_PostComments> {
         isSending = true;
       });
       final request = PostCommentRequest(content: _commentController.text, postId: post.id);
-      andThen(_postCommentService.commentPost(request), then: (response) {
+      _postCommentService.commentPost(request).then((response) {
         setState(() {
-          post.comments.add(response);
+          post.comments.insert(0, response);
           actionsKey.currentState?.update();
+          _commentsKey.currentState?.update(length: post.comments.length);
           isSending = false;
         });
       });
@@ -79,20 +84,42 @@ class _PostCommentsState extends State<_PostComments> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _sortComments();
+  }
+
+  void _sortComments() {
+    post.comments.sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        form.TextField(
-          name: "comment",
-          padding: AppPadding.horAndVer(),
-          controller: _commentController,
-          showLabel: false,
-          suffixIcon: IconButton(
-            icon: isSending ? const CircularProgressIndicator.adaptive() : const Icon(Icons.send_outlined),
-            onPressed: isSending ? null : _comment,
+        AppPadding.widget(
+          padding: AppPadding.topAndBottom(value: 5),
+          child: Container(
+            decoration: BoxDecorations.search(radius: 15),
+            child: form.TextField(
+              name: "comment",
+              padding: AppPadding.left(),
+              controller: _commentController,
+              showLabel: false,
+              border: InputBorder.none,
+              enableBorder: InputBorder.none,
+              suffixIcon: IconButton(
+                icon: isSending ? const CircularProgressIndicator.adaptive() : Icon(FluentIcons.send_28_filled, color: Theme.of(context).colorScheme.primary,),
+                onPressed: isSending ? null : _comment,
+              ),
+              maxLines: 2,
+              minLines: 1,
+              keyboardType: TextInputType.multiline,
+            ),
           ),
         ),
         OverflowColumn(
+          key: _commentsKey,
           maxItems: 5,
           items: comments.map((e) => _buildComment(e)),
         ),

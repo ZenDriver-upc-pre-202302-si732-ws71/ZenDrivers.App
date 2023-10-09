@@ -62,7 +62,7 @@ class RegisterPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
       ),
-      body: AppFutureBuilder(
+      body: RichFutureBuilder(
         future: _companyService.getAll(),
         errorChild: AppButton(
           child: const Text("To login"),

@@ -50,6 +50,8 @@ class Post {
     "likes": likes.iterToJsonList((l) => l.toJson()),
     "comments": comments.iterToJsonList((c) => c.toJson())
   };
+
+
 }
 
 class PostSave {

@@ -2,8 +2,8 @@ part of "inbox.dart";
 
 class _Conversations extends StatefulWidget {
   final LoginResponse credentials;
-  final ConversationService service;
-  const _Conversations({super.key, required this.credentials, required this.service});
+  final List<Conversation> conversations;
+  const _Conversations({super.key, required this.credentials, required this.conversations});
 
   @override
   State<_Conversations> createState() => _ConversationsState();
@@ -11,22 +11,19 @@ class _Conversations extends StatefulWidget {
 
 class _ConversationsState extends State<_Conversations> {
   LoginResponse get _credentials => widget.credentials;
-  ConversationService get _service => widget.service;
   List<Conversation> _conversations = [];
   String _findRequest = "";
 
-  void _updateConversations(List<Conversation> value) {
-    if(value.isNotEmpty) {
-      setState(() {
-        _conversations = value;
-      });
-    }
-  }
 
   @override
   void initState() {
     super.initState();
-    andThen(_service.getAllByUsername(_credentials.username), then: _updateConversations);
+    _conversations = widget.conversations;
+    _sortConversations();
+  }
+
+  void _sortConversations() {
+    _conversations.sort((a, b) => b.messages.last.date.compareTo(a.messages.last.date));
   }
 
   Widget _lastMessage(Message message, SimpleAccount account) {
@@ -55,11 +52,17 @@ class _ConversationsState extends State<_Conversations> {
     return _conversations;
   }
 
-  Future<void> update() async => _updateConversations(await _service.getAllByUsername(_credentials.username));
+  void update(List<Conversation> conversations) {
+    _conversations = conversations;
+    _sortConversations();
+    setState(() {});
+  }
 
   Widget _buildConversation(BuildContext context, Conversation conversation) {
     final effectiveShowAccount = conversation.sender.username == _credentials.username ? conversation.receiver : conversation.sender;
+    final lastMessage = conversation.messages.last;
     return AppTile(
+      contentPadding: AppPadding.leftAndRight(),
       onTap: () => Inbox.toConversationView(context,
           target: effectiveShowAccount,
           conversation: conversation,
@@ -75,8 +78,15 @@ class _ConversationsState extends State<_Conversations> {
           )
         ],
       ),
-      subtitle: conversation.messages.isNotEmpty ? _lastMessage(conversation.messages.last, effectiveShowAccount) : null,
-      trailing: conversation.messages.isNotEmpty ? Text(conversation.messages.last.date.timeAgo(), style: AppText.comment,) : null,
+      subtitle: Row(
+        children: <Widget>[
+          Expanded(
+            child: _lastMessage(lastMessage, effectiveShowAccount),
+          ),
+          AppPadding.widget(padding: AppPadding.right()),
+          Text(lastMessage.date.timeAgo(), style: AppText.comment,)
+        ],
+      ),
     );
   }
   @override
@@ -108,7 +118,7 @@ class _ConversationView extends StatelessWidget {
     if(!_isToProfile.value) {
       _isToProfile.value = true;
       if(target.isRecruiter) {
-        andThen(_recruiterService.getByUsername(target.username), then: (value) {
+        _recruiterService.getByUsername(target.username).then((value) {
           _isToProfile.value = false;
           if(value != null) {
             ListRecruiters.toRecruiterProfile(context, recruiter: value, companyAction: false);
@@ -116,7 +126,7 @@ class _ConversationView extends StatelessWidget {
         });
       }
       else if(target.isDriver) {
-        andThen(_driverService.findByUsername(target.username), then: (value) {
+        _driverService.findByUsername(target.username).then((value) {
           _isToProfile.value = false;
           if(value != null) {
             ListDrivers.toDriverView(context, value, showContact: false);
@@ -162,11 +172,11 @@ class _ConversationView extends StatelessWidget {
           children: <Widget>[
             ImageUtils.avatar(url: target.imageUrl),
             AppPadding.widget(
-                child: Text("${target.firstname} ${target.lastname}",
-                  style: AppText.bold.copyWith(color: Colors.white),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )
+              child: Text("${target.firstname} ${target.lastname}",
+              style: AppText.bold.copyWith(color: Colors.white),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              )
             )
           ],
         ),

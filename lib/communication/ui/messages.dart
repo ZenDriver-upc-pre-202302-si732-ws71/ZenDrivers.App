@@ -11,6 +11,7 @@ class _ConversationMessages extends StatefulWidget {
 class _ConversationMessagesState extends State<_ConversationMessages> {
   List<Message> get _messages => widget.messages;
   SimpleAccount get _target => widget.target;
+  final _messagesController = ScrollController();
 
   void addNewMessage(Message message) => setState(() {
     _messages.add(message);
@@ -44,8 +45,23 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    afterBuild(callback: () {
+      _messagesController.jumpTo(_messagesController.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _messagesController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      controller: _messagesController,
       child: Column(
         children: <Widget>[
           AppPadding.widget(padding: AppPadding.top()),
@@ -82,7 +98,7 @@ class _MessageSendState extends State<_MessageSend> {
         isSending = true;
       });
 
-      andThen(_messageService.send(request), then: (value) {
+      _messageService.send(request).then((value) {
         setState(() {
           isSending = false;
         });

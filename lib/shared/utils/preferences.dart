@@ -15,7 +15,7 @@ class AppPreferences {
 
 
   AppPreferences._internal() {
-    andThen(SharedPreferences.getInstance(), then: (value) {
+    SharedPreferences.getInstance().then((value) {
       _preferences = value;
     });
   }

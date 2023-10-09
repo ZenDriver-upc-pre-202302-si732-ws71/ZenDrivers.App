@@ -17,6 +17,7 @@ import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
+import 'package:zendrivers/shared/utils/validators.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
 import 'package:zendrivers/shared/utils/fields.dart' as fields;
 
@@ -26,7 +27,7 @@ part 'messages.dart';
 class Inbox extends StatelessWidget {
   final ConversationService _conversationService = ConversationService();
   LoginResponse get _credentials => _conversationService.preferences.getCredentials();
-  final GlobalKey<_ConversationsState> _conversationsKey = GlobalKey();
+  final _conversationsKey = GlobalKey<_ConversationsState>();
 
   Inbox({super.key});
 
@@ -48,55 +49,66 @@ class Inbox extends StatelessWidget {
   }
 
 
-  void _search(String name, String? value) => _conversationsKey.currentState?.search(value);
+  void _searchRequest(String name, String? value) => _conversationsKey.currentState?.search(value);
+  Widget _search() => AppPadding.widget(
+    child: Row(
+      children: <Widget>[
+        ImageUtils.avatar(
+            url: _credentials.imageUrl,
+            padding: AppPadding.right()
+        ),
+        Expanded(
+          child: Container(
+            decoration: BoxDecorations.search(),
+            child: fields.TextField(
+              name: "search",
+              onChanged: _searchRequest,
+              border: InputBorder.none,
+              enableBorder: InputBorder.none,
+              showLabel: false,
+              prefixIcon: const Icon(FluentIcons.search_28_regular),
+            ),
+          ),
+        )
+      ],
+    )
+  );
 
   @override
   Widget build(BuildContext context) {
-    return ZenDrivers.sliverScroll(
-      body: RefreshIndicator(
-        onRefresh: () async => await _conversationsKey.currentState?.update(),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              AppFutureBuilder(
-                future: _conversationService.getAllByUsername(_credentials.username),
-                builder: (conversations) => Column(
-                  children: [
-                    AppPadding.widget(
-                      child: Row(
-                        children: <Widget>[
-                          ImageUtils.avatar(
-                            url: _credentials.imageUrl,
-                            padding: AppPadding.right()
+    return Scaffold(
+      appBar: ZenDrivers.bar(context),
+      body: Column(
+        children: [
+          Expanded(
+            child: RichFutureBuilder(
+              future: _conversationService.getAllByUsername(_credentials.username),
+              builder: (conversations) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _conversationsKey.currentState?.update(await _conversationService.getAllByUsername(_credentials.username));
+                  },
+                  child: Column(
+                    children: [
+                      _search(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: _Conversations(
+                            key: _conversationsKey,
+                            credentials: _credentials,
+                            conversations: conversations,
                           ),
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecorations.search(),
-                              child: fields.TextField(
-                                name: "search",
-                                onChanged: _search,
-                                border: InputBorder.none,
-                                enableBorder: InputBorder.none,
-                                showLabel: false,
-                                prefixIcon: const Icon(FluentIcons.search_28_regular),
-                              ),
-                            ),
-                          )
-                        ],
-                      )
-                    ),
-                    _Conversations(
-                      key: _conversationsKey,
-                      credentials: _credentials,
-                      service: _conversationService,
-                    )
-                  ],
-                ),
-              ),
-              AppPadding.widget(padding: AppPadding.top())
-            ],
+                        ),
+                      ),
+                      AppPadding.widget(padding: AppPadding.bottom())
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
-        ),
+          AppPadding.widget(padding: AppPadding.top())
+        ],
       )
     );
   }
