@@ -41,7 +41,6 @@ extension IterableExtensions<Ty extends Object> on Iterable<Ty> {
 extension DateTimeExtension on DateTime {
   String timeAgo() {
     final difference = DateTime.now().difference(this);
-
     if (difference.inDays >= 2) {
       return DateFormat("dd/mm/yyyy, hh:mm a").format(this).toLowerCase();
     } else if (difference.inDays >= 1) {
@@ -56,6 +55,7 @@ extension DateTimeExtension on DateTime {
       return 'just now';
     }
   }
+
 }
 
 extension ResponseExtension on Response {

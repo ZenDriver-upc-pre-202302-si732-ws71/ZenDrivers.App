@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
+import 'package:intl/intl.dart';
 import 'package:zendrivers/communication/entities/conversation.dart';
 import 'package:zendrivers/communication/entities/message.dart';
 import 'package:zendrivers/communication/services/conversation.dart';

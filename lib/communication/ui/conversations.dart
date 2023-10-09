@@ -206,7 +206,7 @@ class _ConversationView extends StatelessWidget {
             children: [
               Expanded(
                 child: AppPadding.widget(
-                  padding: const EdgeInsets.only(top: 5, bottom: 5, left: 5),
+                  padding: const EdgeInsets.only(top: 5, bottom: 8, left: 5),
                   child: Container(
                     decoration: BoxDecorations.search(radius: 20),
                     child: fields.TextField(

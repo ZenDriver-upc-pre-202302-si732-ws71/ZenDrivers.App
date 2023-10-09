@@ -12,6 +12,9 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
   List<Message> get _messages => widget.messages;
   SimpleAccount get _target => widget.target;
   final _messagesController = ScrollController();
+  final _hourFormat = DateFormat("hh:mm a");
+  final _yearFormat = DateFormat("MMMM dd, yyyy");
+  final _dayFormat = DateFormat(DateFormat.WEEKDAY);
 
   void addNewMessage(Message message) => setState(() {
     _messages.add(message);
@@ -19,16 +22,56 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
 
   Widget _buildMessage(BuildContext context, Message message, bool nextIsOther) {
     final isUser = _target.username != message.account.username;
+    final effectiveTextStyle = isUser ? AppText.paragraph.copyWith(color: Colors.white) : AppText.paragraph;
     return AppPadding.widget(
       padding: isUser ? AppPadding.right(value: 5) : AppPadding.left(value: 5),
       child: ChatBubble(
         clipper: isUser ? ChatBubbleClip.sender(last: nextIsOther) : ChatBubbleClip.receiver(last: nextIsOther),
         alignment: isUser ? Alignment.topRight : null,
         margin: nextIsOther ? AppPadding.bottom() : AppPadding.bottom(value: 2),
-        backGroundColor: isUser ? Theme.of(context).colorScheme.primary : const Color(0xFFE8E8EE),
-        child: Text(message.content,style: isUser ? AppText.paragraph.copyWith(color: Colors.white) : AppText.paragraph,),
+        backGroundColor: isUser ? Theme.of(context).colorScheme.primary : Colors.grey[350],
+        elevation: 8,
+        child: Column(
+          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(message.content, style: effectiveTextStyle),
+            Text(_hourFormat.format(message.date).toLowerCase(), style: AppText.comment.copyWith(color: effectiveTextStyle.color))
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _messageDate(DateTime? previousDate, DateTime currentDate) {
+    bool isDifferentDate = false;
+    String effectiveDate = _yearFormat.format(currentDate);
+    if(previousDate == null || (_yearFormat.format(previousDate) != effectiveDate)) {
+      isDifferentDate = true;
+      final difference = DateTime.now().difference(currentDate);
+      if(difference.inHours <= 23) {
+        effectiveDate = "Today";
+      }
+      else if(difference.inDays == 1) {
+        effectiveDate = "Yesterday";
+      }
+      else if(difference.inDays <= 6) {
+        effectiveDate = _dayFormat.format(currentDate);
+      }
+    }
+
+
+    return isDifferentDate ? AppPadding.widget(
+      padding: AppPadding.bottom(value: 5),
+      child: Center(
+        child: Container(
+          decoration: BoxDecorations.search(radius: 18),
+          padding: AppPadding.leftAndRight(value: 5),
+          child: Text(effectiveDate,
+            style: AppText.comment,
+          ),
+        ),
+      ),
+    ) : AppPadding.zeroWidget();
   }
 
   Iterable<Widget> _buildMessages(BuildContext context) {
@@ -40,7 +83,13 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
           nextIndex == _messages.length ||
               actual.account.username != _messages[nextIndex].account.username;
 
-      return _buildMessage(context, actual, isLastMessageOrDifferentUser);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _messageDate(entry.key == 0 ? null : _messages[entry.key - 1].date, actual.date),
+          _buildMessage(context, actual, isLastMessageOrDifferentUser),
+        ],
+      );
     });
   }
 
