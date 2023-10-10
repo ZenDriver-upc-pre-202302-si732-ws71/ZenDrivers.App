@@ -54,7 +54,7 @@ class ImageUtils {
 }
 
 
-class RichFutureBuilder<Ty extends Object> extends StatefulWidget {
+class RichFutureBuilder<Ty extends Object?> extends StatefulWidget {
   final Future<Ty> future;
   final Widget? errorChild;
   final Widget Function(Ty) builder;
@@ -67,7 +67,7 @@ class RichFutureBuilder<Ty extends Object> extends StatefulWidget {
   State<RichFutureBuilder<Ty>> createState() => _RichFutureBuilderState<Ty>();
 }
 
-class _RichFutureBuilderState<Ty extends Object> extends State<RichFutureBuilder<Ty>> {
+class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilder<Ty>> {
   bool _break = false;
 
   Future<Ty> get future => widget.future;
@@ -100,7 +100,7 @@ class _RichFutureBuilderState<Ty extends Object> extends State<RichFutureBuilder
           }
           if(_break) {
             return AppToast(
-              message: timeoutMessage ?? "The request took too long (already of $maxSeconds seconds).",
+              message: showException ? timeoutMessage ?? "The request took too long (already of $maxSeconds seconds)." : null,
               child: errorChild,
             );
           }

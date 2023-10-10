@@ -192,11 +192,13 @@ class TextField extends StatelessWidget {
 
 class ShowField extends StatelessWidget {
   final EdgeInsets? padding;
+  final EdgeInsets? containerPadding;
   final double? height;
   final double? width;
   final Color? background;
   final Widget text;
   final double? circularRadius;
+  final BoxDecoration? decoration;
   const ShowField({
     super.key,
     this.padding,
@@ -204,7 +206,9 @@ class ShowField extends StatelessWidget {
     this.width,
     this.background,
     required this.text,
-    this.circularRadius
+    this.circularRadius,
+    this.decoration,
+    this.containerPadding
   });
 
   @override
@@ -214,9 +218,10 @@ class ShowField extends StatelessWidget {
         child: Container(
           height: height,
           width: width,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(circularRadius ?? 5),
-              color: background
+          padding: containerPadding,
+          decoration: decoration ?? BoxDecoration(
+            borderRadius: BorderRadius.circular(circularRadius ?? 5),
+            color: background
           ),
           alignment: Alignment.centerLeft,
           child: text,

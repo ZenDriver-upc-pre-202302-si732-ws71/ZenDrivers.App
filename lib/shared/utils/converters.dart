@@ -46,6 +46,7 @@ extension IterableExtensions<Ty extends Object?> on Iterable<Ty> {
 class DateFormatters {
   static DateFormat get hoursTime => DateFormat("hh:mm a");
   static DateFormat get dateTime => DateFormat("MM/dd/y, hh:mm a");
+  static DateFormat get date => DateFormat("MM/dd/y");
   static DateFormat get weekdayTime => DateFormat("${DateFormat.WEEKDAY}, hh:mm a");
 }
 

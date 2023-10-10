@@ -14,6 +14,9 @@ class Account {
   final RecruiterResource? recruiter;
   final DriverResource? driver;
 
+  bool get isDriver => role == UserType.driver;
+  bool get isRecruiter => role == UserType.recruiter;
+
   Account({
     required this.id,
     required this.firstname,
@@ -107,7 +110,6 @@ class AccountUpdateRequest {
   final String? firstname;
   final String? lastname;
   final String? username;
-  final String? password;
   final String? phone;
   final RecruiterUpdate? recruiter;
   final DriverUpdate? driver;
@@ -116,7 +118,6 @@ class AccountUpdateRequest {
     this.firstname,
     this.lastname,
     this.username,
-    this.password,
     this.phone,
     this.recruiter,
     this.driver,
@@ -130,7 +131,6 @@ class AccountUpdateRequest {
     firstname: json["firstname"],
     lastname: json["lastname"],
     username: json["username"],
-    password: json["password"],
     phone: json["phone"],
     recruiter: json["recruiter"] == null ? null : RecruiterUpdate.fromJson(json["recruiter"]),
     driver: json["driver"] == null ? null : DriverUpdate.fromJson(json["driver"]),
@@ -140,7 +140,6 @@ class AccountUpdateRequest {
     "firstname": firstname,
     "lastname": lastname,
     "username": username,
-    "password": password,
     "phone": phone,
     "recruiter": recruiter?.toJson(),
     "driver": driver?.toJson(),

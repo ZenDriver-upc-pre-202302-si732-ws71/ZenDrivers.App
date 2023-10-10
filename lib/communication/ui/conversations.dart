@@ -78,13 +78,14 @@ class _ConversationsState extends State<_Conversations> {
           )
         ],
       ),
-      subtitle: Row(
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            child: _lastMessage(lastMessage, effectiveShowAccount),
-          ),
-          AppPadding.widget(padding: AppPadding.right()),
-          Text(lastMessage.date.timeAgo().toCapitalized(), style: AppText.comment,)
+          _lastMessage(lastMessage, effectiveShowAccount),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Text(lastMessage.date.timeAgo().toCapitalized(), style: AppText.comment,),
+          )
         ],
       ),
     );

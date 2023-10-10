@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 
 class BoxDecorations {
-  static BoxDecoration box({Color? color, double radius = 10}) => BoxDecoration(
+  static BoxDecoration box({Color? color, Color? background, double radius = 10}) => BoxDecoration(
     border: Border.all(color: color ?? Colors.lightBlueAccent),
+    color: background,
     borderRadius: BorderRadius.all(Radius.circular(radius)),
   );
 

@@ -48,9 +48,17 @@ class _PostCommentsState extends State<_PostComments> {
   Widget _buildComment(PostComment comment) => AppTile(
     onTap: () => _onCommentTap(comment.account),
     padding: AppPadding.horAndVer(vertical: 4),
-    subtitle: Text(comment.content),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(comment.content),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Text(comment.date.timeAgo(), style: AppText.comment,),
+        )
+      ],
+    ),
     leading: ImageUtils.avatar(url: comment.account.imageUrl),
-    trailing: Text(comment.date.timeAgo()),
     title: Row(
       children: <Widget>[
         Text(
