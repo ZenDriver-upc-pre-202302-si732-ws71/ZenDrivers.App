@@ -29,9 +29,8 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
       child: ChatBubble(
         clipper: isUser ? ChatBubbleClip.sender(last: nextIsOther) : ChatBubbleClip.receiver(last: nextIsOther),
         alignment: isUser ? Alignment.topRight : null,
-        margin: nextIsOther ? AppPadding.bottom() : AppPadding.bottom(value: 2),
+        margin: AppPadding.bottom(value: nextIsOther ? 5 : 2),
         backGroundColor: isUser ? Theme.of(context).colorScheme.primary : Colors.grey[350],
-        elevation: 8,
         child: Column(
           crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: <Widget>[
@@ -58,7 +57,7 @@ class _ConversationMessagesState extends State<_ConversationMessages> {
 
 
     return isDifferentDate ? AppPadding.widget(
-      padding: nextIsOther ? AppPadding.top() : AppPadding.topAndBottom(value: 2),
+      padding: nextIsOther ? AppPadding.topAndBottom() : AppPadding.bottom(),
       child: Center(
         child: Container(
           decoration: BoxDecorations.search(radius: 18),

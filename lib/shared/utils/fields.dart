@@ -135,6 +135,7 @@ class TextField extends StatelessWidget {
   final int? maxLines;
   final int? minLines;
   final TextCapitalization textCapitalization;
+  final bool readOnly;
   const TextField({
     super.key,
     required this.name,
@@ -152,7 +153,8 @@ class TextField extends StatelessWidget {
     this.showLabel = true,
     this.maxLines = 1,
     this.minLines,
-    this.textCapitalization = TextCapitalization.none
+    this.textCapitalization = TextCapitalization.none,
+    this.readOnly = false
   });
 
 
@@ -162,6 +164,7 @@ class TextField extends StatelessWidget {
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: FormBuilderTextField(
+        readOnly: readOnly,
         maxLines: maxLines,
         minLines: minLines,
         textCapitalization: textCapitalization,

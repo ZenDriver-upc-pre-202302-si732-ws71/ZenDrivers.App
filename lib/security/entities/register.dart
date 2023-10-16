@@ -9,8 +9,8 @@ class SignupRequest {
   final String password;
   final String phone;
   final UserType role;
-  final RecruiterSave recruiter;
-  final DriverSave driver;
+  final RecruiterSave? recruiter;
+  final DriverSave? driver;
 
   SignupRequest({
     required this.firstname,
@@ -19,8 +19,8 @@ class SignupRequest {
     required this.password,
     required this.phone,
     required this.role,
-    required this.recruiter,
-    required this.driver,
+    this.recruiter,
+    this.driver,
   });
 
   factory SignupRequest.fromRawJson(String str) => SignupRequest.fromJson(json.decode(str));
@@ -45,8 +45,8 @@ class SignupRequest {
     "password": password,
     "phone": phone,
     "role": roleToString(role),
-    "recruiter": recruiter.toJson(),
-    "driver": driver.toJson(),
+    "recruiter": recruiter?.toJson(),
+    "driver": driver?.toJson(),
   };
 }
 

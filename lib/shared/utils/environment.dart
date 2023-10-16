@@ -1,4 +1,4 @@
-import 'package:async_button/async_button.dart';
+import 'package:async_button_builder/async_button_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -111,38 +111,34 @@ class AppAsyncButton<Ty extends Object?> extends StatelessWidget {
   final Widget child;
   final void Function(Ty)? onSuccess;
   final void Function(dynamic)? onError;
-  final _controller = AsyncBtnStatesController();
   final double squareDimension;
-  AppAsyncButton({super.key, this.padding, required this.future, required this.child, this.onSuccess, this.onError, this.squareDimension = 24});
-
+  const AppAsyncButton({super.key, this.padding, required this.future, required this.child, this.onSuccess, this.onError, this.squareDimension = 24});
 
   @override
   Widget build(BuildContext context) {
     return AppPadding.widget(
         padding: padding ?? AppPadding.leftAndRight(),
-        child: AsyncElevatedBtn(
-          asyncBtnStatesController: _controller,
+        child: AsyncButtonBuilder(
           onPressed: () async {
-            _controller.update(AsyncBtnState.loading);
             try {
               final response = await future();
-              _controller.update(AsyncBtnState.success);
               if(onSuccess != null) {
                 onSuccess!(response);
               }
             } catch(e) {
-              _controller.update(AsyncBtnState.idle);
               if(onError != null) {
                 onError!(e);
               }
             }
           },
-          loadingStyle: AsyncBtnStateStyle(
-            widget: SizedBox.square(
-              dimension: squareDimension,
-              child: const CircularProgressIndicator(),
-            ),
-          ),
+          builder: (context, child, callback, state) {
+            return AppButton(
+              onClick: callback,
+              child: child,
+            );
+          },
+          successWidget: AppPadding.zeroWidget(),
+          successDuration: Duration.zero,
           child: child,
         )
     );

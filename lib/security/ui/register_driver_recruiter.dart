@@ -1,4 +1,4 @@
-part of 'register.dart';
+part of 'register_fields.dart';
 
 class _RecruiterOrDriverForm extends StatefulWidget {
 
@@ -12,6 +12,9 @@ class _RecruiterOrDriverForm extends StatefulWidget {
   final Function(String, String?) onChangeField;
 
   final GlobalKey<FormBuilderState> formKey;
+  final bool? isEdit;
+  final UserType? role;
+
 
   const _RecruiterOrDriverForm({
     required this.formKey,
@@ -20,7 +23,9 @@ class _RecruiterOrDriverForm extends StatefulWidget {
     required this.addressController,
     required this.onChangeField,
     required this.companies,
-    required this.onRegister
+    required this.onRegister,
+    this.role,
+    this.isEdit
   });
 
   @override
@@ -28,7 +33,7 @@ class _RecruiterOrDriverForm extends StatefulWidget {
 }
 
 class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
-  UserType role = UserType.driver;
+  late UserType role;
   TextEditingController get emailController => widget.emailController;
   TextEditingController get descriptionController => widget.descriptionController;
   TextEditingController get addressController => widget.addressController;
@@ -37,6 +42,14 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
   GlobalKey<FormBuilderState> get formKey => widget.formKey;
 
   void Function(UserType) get onRegister => widget.onRegister;
+
+  bool get isEdit => widget.isEdit ?? false;
+
+  @override
+  void initState() {
+    role = widget.role ?? UserType.driver;
+    super.initState();
+  }
 
   void _changeRole(UserType role) {
     Timer(const Duration(milliseconds: 1300), () {
@@ -48,8 +61,10 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
 
   List<Widget> _fields() {
     if(role == UserType.recruiter) {
-      emailController.value = TextEditingValue.empty;
-      descriptionController.value = TextEditingValue.empty;
+      if(!isEdit) {
+        emailController.value = TextEditingValue.empty;
+        descriptionController.value = TextEditingValue.empty;
+      }
       return [
         AppPadding.widget(padding: EdgeInsets.zero),
         form.TextField(
@@ -70,6 +85,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           prefixIcon: const Icon(Icons.description),
           padding: AppPadding.topAndBottom(),
         ),
+        if(!isEdit)
         SizedBox(
           width: 200,
           child: AppDropdown(
@@ -93,19 +109,22 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
     ];
   }
 
-
+  List<Widget> _registerActions() => [
+    _UserRolButton(role: role, onChange: _changeRole),
+    AppPadding.widget(padding: AppPadding.topAndBottom()),
+    AppButton(
+      onClick: () => onRegister(role),
+      child: const Text("Sign up"),
+    ),
+    AppPadding.widget(padding: AppPadding.topAndBottom(value: 6))
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
       ..._fields(),
-      _UserRolButton(role: role, onChange: _changeRole),
-      AppPadding.widget(padding: AppPadding.topAndBottom()),
-      AppButton(
-        onClick: () => onRegister(role),
-        child: const Text("Sign up"),
-      ),
-      AppPadding.widget(padding: AppPadding.topAndBottom(value: 6))
+      if(!isEdit)
+        ..._registerActions(),
     ]);
   }
 }
