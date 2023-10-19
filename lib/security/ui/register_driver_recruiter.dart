@@ -11,13 +11,11 @@ class _RecruiterOrDriverForm extends StatefulWidget {
 
   final Function(String, String?) onChangeField;
 
-  final GlobalKey<FormBuilderState> formKey;
   final bool? isEdit;
   final UserType? role;
 
 
   const _RecruiterOrDriverForm({
-    required this.formKey,
     required this.emailController,
     required this.descriptionController,
     required this.addressController,
@@ -39,7 +37,6 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
   TextEditingController get addressController => widget.addressController;
   void Function(String, String?) get onChangeField => widget.onChangeField;
   List<Company> get companies => widget.companies;
-  GlobalKey<FormBuilderState> get formKey => widget.formKey;
 
   void Function(UserType) get onRegister => widget.onRegister;
 
@@ -61,10 +58,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
 
   List<Widget> _fields() {
     if(role == UserType.recruiter) {
-      if(!isEdit) {
-        emailController.value = TextEditingValue.empty;
-        descriptionController.value = TextEditingValue.empty;
-      }
+
       return [
         AppPadding.widget(padding: EdgeInsets.zero),
         form.TextField(
@@ -90,10 +84,12 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           width: 200,
           child: AppDropdown(
             items: companies,
-            name: "companies",
+            name: "companyId",
             label: "Company",
             hint: "Select a company",
             converter: (item) => DropdownMenuItem(value: item, child: Text(item.name),),
+            onChange: (item) => onChangeField("companyId", item?.toString()),
+            validator: FormBuilderValidators.required(),
           ),
         ),
       ];

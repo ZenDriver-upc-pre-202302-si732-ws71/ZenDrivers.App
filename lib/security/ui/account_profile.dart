@@ -7,6 +7,7 @@ import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/security/services/account.dart';
 import 'package:zendrivers/security/ui/login.dart';
 import 'package:zendrivers/security/ui/register_fields.dart';
+import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart' as fields;
@@ -15,20 +16,20 @@ import 'package:zendrivers/shared/utils/preferences.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
 
+part 'account_password.dart';
+
 class AccountProfile extends StatelessWidget {
   final _accountService = AccountService();
   AppPreferences get _preferences => _accountService.preferences;
   LoginResponse get _credentials => _accountService.preferences.getCredentials();
   AccountProfile({super.key});
 
-  Widget _logoutButton(BuildContext context) => AppAsyncButton(
-    future: () => _preferences.removeCredentials(),
-    onSuccess: (value) {
-      if(value) {
-        Navegations.persistentReplace(context, widget: LoginPage());
-      }
-    },
-    onError: (value) => AppToast.show(context, value.toString()),
+  Widget _logoutButton(BuildContext context) => AppButton(
+    onClick: () => ZenDrivers.showDialog(
+      context: context,
+      dialog: _LogoutDialog(preferences: _preferences),
+      transitionDuration: const Duration(milliseconds: 300)
+    ),
     child: const Text("Logout"),
   );
 
@@ -133,9 +134,21 @@ class _ProfileFieldsState extends State<_ProfileFields> {
   );
 
   Widget _editFields() => AppPadding.widget(
-    child: RegisterFields(
-      account: account,
-      formKey: _formKey,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        RegisterFields(
+          account: account,
+          formKey: _formKey,
+        ),
+        TextButton(
+          onPressed: () =>  ZenDrivers.showDialog(
+            context: context,
+            dialog: _ChangePasswordDialog()
+          ),
+          child: const Text("Change password"),
+        )
+      ],
     )
   );
 
@@ -150,9 +163,9 @@ class _ProfileFieldsState extends State<_ProfileFields> {
 
   Widget _save() => AppAsyncButton(
     future: () async {
-      await Future.delayed(const Duration(seconds: 2));
-      _formKey.currentState?.validate();
-      throw Exception("Exception");
+      final fields = _formKey.currentState!.fields.map((key, value) => MapEntry(key, value.value));
+      ZenDrivers.prints(AccountUpdateRequest.fromJson(fields).toRawJson());
+      ZenDrivers.prints(fields);
     },
     onError: (value) => ZenDrivers.prints("On Error callback"),
     child: const Text("Save"),
@@ -180,11 +193,47 @@ class _ProfileFieldsState extends State<_ProfileFields> {
                 ),
                 Container(
                   child: edit ? _save() : _cancelOrEdit(),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+
+class _LogoutDialog extends StatelessWidget {
+  final AppPreferences preferences;
+
+  const _LogoutDialog({required this.preferences});
+
+  Widget _logoutButton(BuildContext context) => AppAsyncButton(
+    future: () => preferences.removeCredentials(),
+    onSuccess: (value) {
+      if(value) {
+        Navegations.persistentReplace(context, widget: LoginPage());
+      }
+    },
+    onError: (value) => AppToast.show(context, value.toString()),
+    child: const Text("Logout"),
+  );
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Logout",
+        style: AppText.title,
+      ),
+      actions: [
+        AppButton(
+          onClick: () => Navegations.back(context),
+          child: const Text("Cancel"),
+        ),
+        _logoutButton(context)
+      ],
+      content: Text("Are you sure you want to logout?",
+        style: AppText.paragraph,
       ),
     );
   }

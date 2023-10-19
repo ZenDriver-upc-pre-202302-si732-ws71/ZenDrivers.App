@@ -40,4 +40,9 @@ class AccountService extends HttpService {
     return response.isOk ? Account.fromRawJson(response.body) : null;
   }
 
+  Future<MessageResponse> changePassword(ChangePasswordRequest request) async {
+    final response = await post(body: request, append: "change-password");
+    return messageResponse(response, "Password changed successfully");
+  }
+
 }

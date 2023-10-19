@@ -36,11 +36,11 @@ class Company {
   };
 
   @override
-  bool operator ==(Object other) => other.toString() == name;
+  bool operator ==(Object other) => other.toString() == id.toString();
 
   @override
-  String toString() => name;
+  String toString() => id.toString();
 
   @override
-  int get hashCode => name.hashCode;
+  int get hashCode => toString().hashCode;
 }

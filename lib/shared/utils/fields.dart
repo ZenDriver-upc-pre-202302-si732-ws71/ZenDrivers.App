@@ -76,7 +76,8 @@ class _PasswordFieldState extends State<PasswordField> {
         ),
         obscureText: _hidePassword,
         validator: FormBuilderValidators.compose([
-          FormBuilderValidators.required()
+          FormBuilderValidators.required(),
+          FormBuilderValidators.minLength(4, errorText: "Min length is 4")
         ]),
         onChanged: (value) => onChanged(name, value),
       ),

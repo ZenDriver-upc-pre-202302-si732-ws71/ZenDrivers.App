@@ -84,6 +84,16 @@ class ZenDrivers {
       ),
     );
   }
+
+  static Future<void> showDialog({required BuildContext context, required Widget dialog, Duration? transitionDuration}) => showGeneralDialog(
+      context: context,
+      pageBuilder: (context, first, second) => Container(),
+      transitionBuilder: (context, first, second, child) => Transform.scale(
+        scale: Curves.easeInOut.transform(first.value),
+        child: dialog,
+      ),
+      transitionDuration: transitionDuration ?? const Duration(milliseconds: 350)
+  );
 }
 
 

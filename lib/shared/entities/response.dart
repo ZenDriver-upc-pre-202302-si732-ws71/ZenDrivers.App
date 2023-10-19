@@ -8,6 +8,10 @@ class MessageResponse {
     required this.message,
   });
 
+  factory MessageResponse.empty() => MessageResponse(message: "");
+
+  bool get isEmpty => message.isEmpty;
+
   factory MessageResponse.fromRawJson(String str) => MessageResponse.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());

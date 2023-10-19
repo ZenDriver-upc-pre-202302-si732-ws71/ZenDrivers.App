@@ -16,7 +16,6 @@ import 'dart:async';
 part 'register_driver_recruiter.dart';
 
 class RegisterFields extends StatelessWidget {
-  final _formKey = GlobalKey<FormBuilderState>();
   final _firstnameController = TextEditingController();
   final _lastnameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -34,13 +33,15 @@ class RegisterFields extends StatelessWidget {
 
   final Account? account;
   final List<Company>? companies;
-  final GlobalKey<FormBuilderState>? formKey;
 
   bool get isEdit => account != null;
   bool get isNotEdit => companies != null;
 
-  RegisterFields({this.account, this.companies, this.formKey, super.key}) :
+  late final GlobalKey<FormBuilderState> _formKey;
+
+  RegisterFields({this.account, this.companies, GlobalKey<FormBuilderState>? formKey, super.key}) :
     assert((account == null && companies != null) || (account != null && companies == null && formKey != null)) {
+    _formKey = formKey ?? GlobalKey();
     if(isEdit) {
       final effectiveAccount = account!;
       _firstnameController.text = effectiveAccount.firstname;
@@ -58,7 +59,7 @@ class RegisterFields extends StatelessWidget {
     }
   }
 
-  void _validateField(String name, String? value) => (formKey ?? _formKey).currentState?.fields[name]?.validate();
+  void _validateField(String name, String? value) => _formKey.currentState?.fields[name]?.validate();
 
   String? _validatePhone(String? value) {
     if(value != null) {
@@ -83,17 +84,17 @@ class RegisterFields extends StatelessWidget {
   void _register(BuildContext context, UserType role) {
     if(_formKey.currentState?.validate() ?? false) {
       form.InputFields.unFocus(context);
-      final request = SignupRequest(
-        firstname: _firstnameController.text,
-        lastname: _lastnameController.text,
-        phone: _maskPhone.unmaskText(_phoneController.text),
-        role: role,
-        driver: role == UserType.driver ? _driverSave() : null,
-        recruiter: role == UserType.recruiter ? _recruiterSave() : null,
-        username: _usernameController.text,
-        password: _passwordController.text
-      );
-      ZenDrivers.prints(request.toRawJson());
+      final fields = _formKey.currentState?.fields.map((key, value) => MapEntry(key, value.value));
+      if(fields != null) {
+        fields.putIfAbsent("role", () => roleToString(role));
+        fields.putIfAbsent("birth", () => DateTime(1990).toIso8601String());
+        fields["phone"] = _maskPhone.unmaskText(fields["phone"]);
+        fields["driver"] = role == UserType.driver ? DriverSave.fromJson(fields).toJson() : null;
+        fields["recruiter"] = role == UserType.recruiter ? RecruiterSave.fromJson(fields).toJson() : null;
+        ZenDrivers.prints(fields);
+        ZenDrivers.prints(SignupRequest.fromJson(fields).toRawJson());
+      }
+
 
     }
   }
@@ -123,7 +124,7 @@ class RegisterFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FormBuilder(
-      key: formKey ?? _formKey,
+      key: _formKey,
       child: Column(
         children: <Widget>[
           form.TextField(
@@ -148,6 +149,7 @@ class RegisterFields extends StatelessWidget {
             padding: AppPadding.topAndBottom(),
             prefixIcon: const Icon(Icons.person),
           ),
+          if(isNotEdit)
           form.TextField(
             name: "phone",
             readOnly: isEdit,
@@ -171,7 +173,6 @@ class RegisterFields extends StatelessWidget {
           if(isNotEdit)
             ..._passwordFields(),
           _RecruiterOrDriverForm(
-            formKey: _formKey,
             emailController: _emailRecruiterController,
             descriptionController: _descriptionRecruiterController,
             addressController: _addressDriverController,

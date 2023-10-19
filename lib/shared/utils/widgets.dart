@@ -122,7 +122,7 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
           );
         }
 
-        return builder(snapshot.data!);
+        return builder(snapshot.data as Ty);
       },
     );
   }

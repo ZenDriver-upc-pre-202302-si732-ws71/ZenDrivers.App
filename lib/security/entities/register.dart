@@ -34,8 +34,8 @@ class SignupRequest {
     password: json["password"],
     phone: json["phone"],
     role: roleFromString(json["role"]),
-    recruiter: RecruiterSave.fromJson(json["recruiter"]),
-    driver: DriverSave.fromJson(json["driver"]),
+    recruiter: json["recruiter"] != null ? RecruiterSave.fromJson(json["recruiter"]) : null,
+    driver: json["driver"] != null ? DriverSave.fromJson(json["driver"]) : null,
   );
 
   Map<String, dynamic> toJson() => {
