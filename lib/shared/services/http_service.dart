@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:zendrivers/shared/entities/response.dart';
@@ -35,18 +34,18 @@ class HttpService {
     return await http.get(joinToUri(append ?? ""), headers: _getHeaders(auth ?? true, false));
   }
 
-  Future<http.Response> post({String? append, bool? auth, required Object body}) async {
+  Future<http.Response> post<Ty extends JsonSerializable>({String? append, bool? auth, required Ty body}) async {
     await loadPreferences();
     return await http.post(joinToUri(append ?? ""),
         headers: _getHeaders(auth ?? true, true),
-        body: jsonEncode(body));
+        body: body.toRawJson());
   }
 
-  Future<http.Response> put({String? append, required Object body}) async {
+  Future<http.Response> put<Ty extends JsonSerializable>({String? append, required Ty body}) async {
     await loadPreferences();
     return await http.put(joinToUri(append ?? ""),
         headers: _getHeaders(true, true),
-        body: jsonEncode(body));
+        body: body.toRawJson());
   }
 
   Future<http.Response> delete({required String append}) async {
@@ -71,10 +70,14 @@ class HttpService {
   String joinToUrl(String append) => "$_serviceUrl/$append";
   Uri joinToUri(String append) => Uri.parse(joinToUrl(append));
 
-  Future<List<Ty>> iterableGet<Ty extends Object>(
-      {String? append, bool? auth, required Ty Function(Map<String, dynamic>) converter}) async {
+  Future<List<Ty>> iterableGet<Ty extends Object?>({String? append, bool? auth, required Ty Function(Map<String, dynamic>) converter}) async {
     final response = await get(append: append, auth: auth);
     return response.isOk ? response.body.jsonToIter(converter).toList() : List.empty();
   }
+}
 
+
+abstract class JsonSerializable {
+  String toRawJson();
+  Map<String, dynamic> toJson();
 }

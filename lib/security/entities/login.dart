@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 
-class LoginRequest {
+class LoginRequest extends JsonSerializable {
   final String username;
   final String password;
 
@@ -13,6 +14,7 @@ class LoginRequest {
 
   factory LoginRequest.fromRawJson(String str) => LoginRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory LoginRequest.fromJson(Map<String, dynamic> json) => LoginRequest(
@@ -20,6 +22,7 @@ class LoginRequest {
     password: json["password"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "username": username,
     "password": password,

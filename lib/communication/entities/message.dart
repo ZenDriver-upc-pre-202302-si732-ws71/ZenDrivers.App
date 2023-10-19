@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 
 
 class Message {
@@ -36,7 +37,7 @@ class Message {
 }
 
 
-class MessageRequest {
+class MessageRequest extends JsonSerializable {
   final String content;
   final String receiverUsername;
 
@@ -47,6 +48,7 @@ class MessageRequest {
 
   factory MessageRequest.fromRawJson(String str) => MessageRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory MessageRequest.fromJson(Map<String, dynamic> json) => MessageRequest(
@@ -54,6 +56,7 @@ class MessageRequest {
     receiverUsername: json["receiverUsername"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "content": content,
     "receiverUsername": receiverUsername,

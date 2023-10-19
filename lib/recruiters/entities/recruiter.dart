@@ -68,4 +68,11 @@ class RecruiterResource {
     "description": description,
     "company": company.toJson(),
   };
+
+  RecruiterResource fromUpdate(RecruiterUpdate request) => RecruiterResource(
+    id: id,
+    company: company,
+    email: request.email ?? email,
+    description: request.description ?? description
+  );
 }

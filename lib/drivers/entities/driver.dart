@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:zendrivers/drivers/entities/experience.dart';
 import 'package:zendrivers/drivers/entities/license.dart';
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 
 class Driver {
@@ -70,9 +71,16 @@ class DriverResource {
     "address": address,
     "birth": birth.toIso8601String(),
   };
+
+  DriverResource fromUpdate(DriverUpdate request) => DriverResource(
+    id: id,
+    address: request.address ?? address,
+    birth: request.birth ?? birth
+  );
+
 }
 
-class DriverFindRequest {
+class DriverFindRequest extends JsonSerializable {
   int yearsOfExperience;
   final String categoryName;
 
@@ -83,6 +91,7 @@ class DriverFindRequest {
 
   factory DriverFindRequest.fromRawJson(String str) => DriverFindRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory DriverFindRequest.fromJson(Map<String, dynamic> json) => DriverFindRequest(
@@ -90,6 +99,8 @@ class DriverFindRequest {
     categoryName: json["categoryName"],
   );
 
+
+  @override
   Map<String, dynamic> toJson() => {
     "yearsOfExperience": yearsOfExperience,
     "categoryName": categoryName,

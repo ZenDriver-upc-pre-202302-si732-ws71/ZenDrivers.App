@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:zendrivers/drivers/entities/driver.dart';
 import 'package:zendrivers/recruiters/entities/recruiter.dart';
 import 'package:zendrivers/security/entities/login.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 
-class Account {
+class Account extends JsonSerializable {
   final int id;
   final String firstname;
   final String lastname;
@@ -31,6 +32,7 @@ class Account {
 
   factory Account.fromRawJson(String str) => Account.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory Account.fromJson(Map<String, dynamic> json) => Account(
@@ -45,6 +47,7 @@ class Account {
     driver: json["driver"] != null ? DriverResource.fromJson(json["driver"]) : null,
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "id": id,
     "firstname": firstname,
@@ -56,6 +59,20 @@ class Account {
     "recruiter": recruiter?.toJson(),
     "driver": driver?.toJson(),
   };
+
+  Account fromUpdate(AccountUpdateRequest request) {
+    return Account(
+      id: id,
+      firstname: request.firstname ?? firstname,
+      lastname: request.lastname ?? lastname,
+      username: request.username ?? username,
+      phone: request.phone ?? phone,
+      recruiter: request.recruiter != null ? recruiter?.fromUpdate(request.recruiter!) : recruiter,
+      driver: request.driver != null ? driver?.fromUpdate(request.driver!) : driver,
+      role: role,
+      imageUrl: imageUrl
+    );
+  }
 }
 
 class SimpleAccount {
@@ -106,13 +123,13 @@ class SimpleAccount {
 }
 
 
-class AccountUpdateRequest {
+class AccountUpdateRequest extends JsonSerializable {
   final String? firstname;
   final String? lastname;
   final String? username;
   final String? phone;
-  final RecruiterUpdate? recruiter;
-  final DriverUpdate? driver;
+  RecruiterUpdate? recruiter;
+  DriverUpdate? driver;
 
   AccountUpdateRequest({
     this.firstname,
@@ -125,6 +142,7 @@ class AccountUpdateRequest {
 
   factory AccountUpdateRequest.fromRawJson(String str) => AccountUpdateRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory AccountUpdateRequest.fromJson(Map<String, dynamic> json) => AccountUpdateRequest(
@@ -136,6 +154,7 @@ class AccountUpdateRequest {
     driver: json["driver"] == null ? null : DriverUpdate.fromJson(json["driver"]),
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "firstname": firstname,
     "lastname": lastname,
@@ -195,7 +214,7 @@ class RecruiterUpdate {
 }
 
 
-class AuthenticateRequest {
+class AuthenticateRequest extends JsonSerializable {
   final String username;
   final String token;
 
@@ -206,6 +225,7 @@ class AuthenticateRequest {
 
   factory AuthenticateRequest.fromRawJson(String str) => AuthenticateRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory AuthenticateRequest.fromJson(Map<String, dynamic> json) => AuthenticateRequest(
@@ -213,6 +233,7 @@ class AuthenticateRequest {
     token: json["token"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "username": username,
     "token": token,
@@ -220,7 +241,7 @@ class AuthenticateRequest {
 }
 
 
-class ChangePasswordRequest {
+class ChangePasswordRequest extends JsonSerializable {
   final String currentPassword;
   final String newPassword;
 
@@ -231,6 +252,7 @@ class ChangePasswordRequest {
 
   factory ChangePasswordRequest.fromRawJson(String str) => ChangePasswordRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory ChangePasswordRequest.fromJson(Map<String, dynamic> json) => ChangePasswordRequest(
@@ -238,6 +260,7 @@ class ChangePasswordRequest {
     newPassword: json["newPassword"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "currentPassword": currentPassword,
     "newPassword": newPassword,

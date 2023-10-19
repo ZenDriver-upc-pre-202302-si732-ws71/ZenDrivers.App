@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:zendrivers/communication/entities/message.dart';
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 
-class Conversation {
+class Conversation extends JsonSerializable {
   final int id;
   final SimpleAccount sender;
   final SimpleAccount receiver;
@@ -18,6 +19,7 @@ class Conversation {
 
   factory Conversation.fromRawJson(String str) => Conversation.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory Conversation.fromJson(Map<String, dynamic> json) => Conversation(
@@ -27,6 +29,7 @@ class Conversation {
     messages: (json["messages"] as Iterable).jsonIterToList(Message.fromJson),
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "id": id,
     "sender": sender.toJson(),

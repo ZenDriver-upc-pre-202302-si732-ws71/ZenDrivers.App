@@ -48,6 +48,7 @@ class ZenDriversApp extends StatelessWidget {
 class ZenDriversPage extends StatelessWidget {
   final int? initialIndex;
   late final PersistentTabController _controller;
+  final _accountProfile = AccountProfile();
   ZenDriversPage({super.key, this.initialIndex}) {
     _controller = PersistentTabController(initialIndex: initialIndex ?? 0);
   }
@@ -56,7 +57,7 @@ class ZenDriversPage extends StatelessWidget {
     Home(),
     Search(),
     Inbox(),
-    AccountProfile()
+    _accountProfile
   ];
 
   PersistentBottomNavBarItem _barItem(BuildContext context, {required Widget icon, Widget? inactiveIcon, String? title}) => PersistentBottomNavBarItem(
@@ -94,6 +95,9 @@ class ZenDriversPage extends StatelessWidget {
     controller: _controller,
     screens: _screens(),
     items: _barItems(context),
+    onItemSelected: (index) {
+      _accountProfile.reset();
+    },
     hideNavigationBarWhenKeyboardShows: true,
     decoration: NavBarDecoration(
       borderRadius: BorderRadius.circular(10.0),

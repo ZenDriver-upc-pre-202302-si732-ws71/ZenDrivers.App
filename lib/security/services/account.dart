@@ -33,8 +33,15 @@ class AccountService extends HttpService {
     final request = AuthenticateRequest(username: credentials.username, token: credentials.token);
     return messageResponse(await post(body: request, append: "validate"), "Valid credentials");
   }
-  Future<MessageResponse> signup(SignupRequest request) async => messageResponse(await post(body: request, append: "sign-up"), "Register successfully");
-  Future<MessageResponse> update(AccountUpdateRequest request) async => messageResponse(await put(body: request), "Updated successfully");
+  Future<MessageResponse> signup(SignupRequest request) async {
+    final response = await post(body: request, append: "sign-up");
+    return messageResponse(response, "Register successfully");
+  }
+  Future<MessageResponse> update(int id, AccountUpdateRequest request) async {
+    final response = await put(body: request, append: "$id");
+    return messageResponse(response, "Updated successfully");
+  }
+
   Future<Account?> getByUsername(String username) async {
     final response = await get(append: "search?username=$username");
     return response.isOk ? Account.fromRawJson(response.body) : null;

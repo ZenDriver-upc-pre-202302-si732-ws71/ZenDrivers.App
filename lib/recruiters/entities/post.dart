@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:zendrivers/recruiters/entities/comment.dart';
 import 'package:zendrivers/recruiters/entities/recruiter.dart';
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 
 class Post {
@@ -54,7 +55,7 @@ class Post {
 
 }
 
-class PostSave {
+class PostSave extends JsonSerializable {
   final String title;
   final String description;
   final String image;
@@ -67,6 +68,7 @@ class PostSave {
 
   factory PostSave.fromRawJson(String str) => PostSave.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory PostSave.fromJson(Map<String, dynamic> json) => PostSave(
@@ -75,6 +77,7 @@ class PostSave {
     image: json["image"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "title": title,
     "description": description,

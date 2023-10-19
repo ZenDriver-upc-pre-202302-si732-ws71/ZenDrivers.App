@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:zendrivers/security/entities/login.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 
-class SignupRequest {
+class SignupRequest extends JsonSerializable {
   final String firstname;
   final String lastname;
   final String username;
@@ -25,6 +26,7 @@ class SignupRequest {
 
   factory SignupRequest.fromRawJson(String str) => SignupRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory SignupRequest.fromJson(Map<String, dynamic> json) => SignupRequest(
@@ -38,6 +40,7 @@ class SignupRequest {
     driver: json["driver"] != null ? DriverSave.fromJson(json["driver"]) : null,
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "firstname": firstname,
     "lastname": lastname,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:zendrivers/security/entities/account.dart';
+import 'package:zendrivers/shared/services/http_service.dart';
 
 class PostComment {
   final int id;
@@ -39,7 +40,7 @@ class PostComment {
 
 }
 
-class PostCommentRequest {
+class PostCommentRequest extends JsonSerializable {
   final String content;
   final int postId;
 
@@ -50,6 +51,7 @@ class PostCommentRequest {
 
   factory PostCommentRequest.fromRawJson(String str) => PostCommentRequest.fromJson(json.decode(str));
 
+  @override
   String toRawJson() => json.encode(toJson());
 
   factory PostCommentRequest.fromJson(Map<String, dynamic> json) => PostCommentRequest(
@@ -57,6 +59,7 @@ class PostCommentRequest {
     postId: json["postId"],
   );
 
+  @override
   Map<String, dynamic> toJson() => {
     "content": content,
     "postId": postId

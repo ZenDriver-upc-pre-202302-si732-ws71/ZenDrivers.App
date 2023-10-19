@@ -22,6 +22,13 @@ class AccountProfile extends StatelessWidget {
   final _accountService = AccountService();
   AppPreferences get _preferences => _accountService.preferences;
   LoginResponse get _credentials => _accountService.preferences.getCredentials();
+
+  final _editKey = GlobalKey<_ProfileFieldsState>();
+
+  void reset() {
+    _editKey.currentState?.reset();
+  }
+
   AccountProfile({super.key});
 
   Widget _logoutButton(BuildContext context) => AppButton(
@@ -43,7 +50,9 @@ class AccountProfile extends StatelessWidget {
         future: _accountService.getByUsername(_credentials.username),
         builder: (value) {
           return value != null ? _ProfileFields(
+            key: _editKey,
             account: value,
+            accountService: _accountService,
             logoutButton: _logoutButton(context),
           ) : Center(
             child: _logoutButton(context),
@@ -58,7 +67,8 @@ class AccountProfile extends StatelessWidget {
 class _ProfileFields extends StatefulWidget {
   final Account account;
   final Widget logoutButton;
-  const _ProfileFields({required this.account, required this.logoutButton});
+  final AccountService accountService;
+  const _ProfileFields({super.key, required this.account, required this.logoutButton, required this.accountService});
 
   @override
   State<_ProfileFields> createState() => _ProfileFieldsState();
@@ -67,9 +77,19 @@ class _ProfileFields extends StatefulWidget {
 class _ProfileFieldsState extends State<_ProfileFields> {
 
   late Account account;
+  late AccountUpdateRequest request;
   final _formKey = GlobalKey<FormBuilderState>();
   Widget get logoutButton => widget.logoutButton;
+  AccountService get accountService => widget.accountService;
   bool edit = false;
+
+  void reset() {
+    if(edit) {
+      setState(() {
+        edit = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -153,7 +173,7 @@ class _ProfileFieldsState extends State<_ProfileFields> {
   );
 
   Widget _cancelOrEdit() => AppButton(
-    child: edit ? const Text("Cancel") : const Text("Edi profile"),
+    child: edit ? const Text("Cancel") : const Text("Edit profile"),
     onClick: () {
       setState(() {
         edit = !edit;
@@ -164,10 +184,25 @@ class _ProfileFieldsState extends State<_ProfileFields> {
   Widget _save() => AppAsyncButton(
     future: () async {
       final fields = _formKey.currentState!.fields.map((key, value) => MapEntry(key, value.value));
-      ZenDrivers.prints(AccountUpdateRequest.fromJson(fields).toRawJson());
-      ZenDrivers.prints(fields);
+      request = AccountUpdateRequest.fromJson(fields);
+      if(account.isRecruiter) {
+        request.recruiter = RecruiterUpdate.fromJson(fields);
+      }
+      else if(account.isDriver) {
+        fields.putIfAbsent("birth", () => account.driver?.birth.toIso8601String());
+        request.driver = DriverUpdate.fromJson(fields);
+      }
+
+      return accountService.update(account.id, request);
     },
-    onError: (value) => ZenDrivers.prints("On Error callback"),
+    onSuccess: (response) {
+      AppToast.show(context, response.message);
+      if(response.valid) {
+        account = account.fromUpdate(request);
+        reset();
+      }
+    },
+    onError: (value) => ZenDrivers.prints(value),
     child: const Text("Save"),
   );
 
