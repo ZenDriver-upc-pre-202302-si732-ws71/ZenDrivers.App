@@ -9,7 +9,7 @@ class Post {
   final int id;
   final String title;
   final String description;
-  final String image;
+  final String? image;
   final List<PostLike> likes;
   final List<PostComment> comments;
   final DateTime date;
@@ -19,7 +19,7 @@ class Post {
     required this.id,
     required this.title,
     required this.description,
-    required this.image,
+    this.image,
     required this.date,
     required this.recruiter,
     required this.likes,
@@ -58,12 +58,12 @@ class Post {
 class PostSave extends JsonSerializable {
   final String title;
   final String description;
-  final String image;
+  final String? image;
 
   PostSave({
     required this.title,
     required this.description,
-    required this.image,
+    this.image,
   });
 
   factory PostSave.fromRawJson(String str) => PostSave.fromJson(json.decode(str));

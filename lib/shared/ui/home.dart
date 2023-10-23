@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:zendrivers/recruiters/entities/post.dart';
 import 'package:zendrivers/recruiters/services/post.dart';
+import 'package:zendrivers/recruiters/ui/post_create.dart';
 import 'package:zendrivers/recruiters/ui/posts.dart';
 import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/communication/entities/like.dart';
 import 'package:zendrivers/communication/services/like.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
+import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/preferences.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
@@ -17,6 +19,7 @@ class Home extends StatelessWidget {
 
   AppPreferences get _preferences => _postService.preferences;
   LoginResponse get _credentials => _preferences.getCredentials();
+  final _posts = MutableObject(<Post>[]);
   final _postsKey = GlobalKey<_HomePostsState>();
 
   Home({super.key});
@@ -28,6 +31,7 @@ class Home extends StatelessWidget {
         body: RichFutureBuilder(
           future: _postService.getAll(),
           builder: (posts) {
+            _posts.value = posts;
             return RefreshIndicator(
               onRefresh: () async {
                 _postsKey.currentState?.update(await _postService.getAll());
@@ -36,10 +40,18 @@ class Home extends StatelessWidget {
                 child: Column(
                   children: [
                     if(_credentials.isRecruiter)
-                      _ActionBar(credentials: _credentials,),
+                      _ActionBar(
+                        credentials: _credentials,
+                        onPost: (post) {
+                          if(!_posts.value.contains(post)) {
+                            _posts.value.add(post);
+                          }
+                          _postsKey.currentState?.update(_posts.value);
+                        },
+                      ),
                     if(_credentials.isDriver)
                       AppPadding.widget(padding: AppPadding.topAndBottom(value: 3)),
-                    _HomePosts(key: _postsKey, posts: posts,),
+                    _HomePosts(key: _postsKey, posts: _posts.value,),
                     AppPadding.widget()
                   ],
                 ),
@@ -107,9 +119,18 @@ class _HomePostsState extends State<_HomePosts> {
 
 class _ActionBar extends StatelessWidget {
   final LoginResponse credentials;
-  const _ActionBar({required this.credentials});
-  void _toCreatePost() {
+  final void Function(Post)? onPost;
+  const _ActionBar({required this.credentials, this.onPost});
 
+  void _toCreatePost(BuildContext context) {
+    Navegations.persistentTo(context, widget: PostCreateView(), withNavBar: false)
+        .then((value) {
+          if(value != null && value is Post) {
+            if(onPost != null) {
+              onPost!(value);
+            }
+          }
+        });
   }
 
   @override
@@ -125,7 +146,7 @@ class _ActionBar extends StatelessWidget {
             child: AppPadding.widget(
               padding: AppPadding.left(value: 2),
               child: InkWell(
-                onTap: _toCreatePost,
+                onTap: () => _toCreatePost(context),
                 child: Container(
                   decoration: BoxDecorations.box(
                     color: Colors.grey.shade500

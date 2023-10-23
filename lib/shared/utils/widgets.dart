@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
+import 'package:http/http.dart' as http;
 
 class ImageUtils {
   static Widget loading(BuildContext context, Widget child, ImageChunkEvent? loading) {
@@ -12,6 +14,7 @@ class ImageUtils {
     }
     return Center(
       child: CircularProgressIndicator(
+        color: Colors.black,
         value: loading.expectedTotalBytes != null ? loading.cumulativeBytesLoaded / loading.expectedTotalBytes!
             : null,
       ),
@@ -223,6 +226,42 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
     );
   }
 }
+
+class NetworkImageManage extends StatelessWidget {
+  final String url;
+  final Widget Function(Uint8List) onSuccess;
+  final Widget Function()? onError;
+  final Widget? onDefault;
+  const NetworkImageManage({
+    super.key,
+    required this.url,
+    required this.onSuccess,
+    this.onError,
+    this.onDefault
+  });
+
+  bool get hasOnError => onError != null;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichFutureBuilder(
+      future: http.get(Uri.parse(url)),
+      loadingPadding: AppPadding.all(value: 10),
+      builder: (response) {
+        if(response.isOk){
+          return onSuccess(response.bodyBytes);
+        }
+        else if(hasOnError) {
+          return onError!();
+        }
+        return onDefault ?? const SizedBox();
+      },
+      errorChild: hasOnError ? () => onError!() : null,
+      showException: false,
+    );
+  }
+}
+
 
 
 class OverflowColumn extends StatefulWidget {

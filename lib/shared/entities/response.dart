@@ -24,3 +24,13 @@ class MessageResponse {
     "message": message,
   };
 }
+
+class EntityResponse<Ty extends Object?> {
+  Ty? value;
+  final bool isValid;
+  final String message;
+
+  factory EntityResponse.invalid({String? message}) => EntityResponse(null, isValid: false, message: message ?? "");
+  EntityResponse(this.value, {this.isValid = true, this.message = ""});
+
+}

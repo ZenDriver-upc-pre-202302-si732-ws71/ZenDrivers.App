@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
-import 'package:http/http.dart' as http;
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:zendrivers/shared/utils/widgets.dart';
 
@@ -449,14 +448,26 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
   bool get isPrefix => widget.type == ImageUrlFieldType.prefix;
   bool get hasBuilder => builder != null;
   Widget Function(String)? get builder => widget.imageBuilder;
+  TextEditingController get controller => widget.controller ?? _controller;
+  final FocusNode _focusNode = FocusNode();
+  final _controller = TextEditingController();
   bool _isFocus = true;
   String? url;
-
 
   @override
   void initState() {
     super.initState();
-    url = widget.controller?.text;
+    _focusNode.addListener(() {
+      if(_focusNode.hasFocus) {
+
+      }
+      else {
+        setState(() {
+          _isFocus = false;
+        });
+      }
+    });
+    url = controller.text;
   }
   void _callOnSuccess() {
     if(widget.onUrlSuccessOrEmpty != null) {
@@ -475,62 +486,76 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
     return icon;
   }
 
-  Widget _prefixImage() {
+  Widget _defaultReplace() => Row(
+    children: [
+      Expanded(
+        child: SizedBox(
+          height: 250,
+          child: Image.asset("assets/placeholder.png"),
+        ),
+      ),
+    ],
+  );
+
+
+  Widget? _prefixImage() {
     if(isPrefix) {
       return hasBuilder ? builder!(url!) : ImageUtils.avatar(
         url: url,
         padding: AppPadding.leftAndRight(),
         avatarBuilder: (url, radius, defaultIcon) => CircleAvatar(
           backgroundColor: Colors.transparent,
-          child: url != null && url.isValidUrl() ? RichFutureBuilder(
-            future: http.get(Uri.parse(url)),
-            builder: (response) {
-              if(response.isOk) {
-                _callOnSuccess();
-                return ImageUtils.avatar(url: url, radius: radius + 5);
-              }
-              else {
-                _callOnError();
-              }
-
-              return defaultIcon;
+          child: url != null && url.isValidUrl() ? NetworkImageManage(
+            url: url,
+            onSuccess: (body) {
+              _callOnSuccess();
+              return ImageUtils.avatar(url: url, radius: radius + 5);
             },
-            errorChild: () {
+            onError: () {
               _callOnError();
               return defaultIcon;
             },
-            showException: false,
           ) : _default(defaultIcon),
         )
       );
     }
 
-    return Container();
+    return null;
   }
-  Widget _image() {
-    if(!isPrefix && url != null) {
+
+  Widget _replaceImage() {
+    if(!isPrefix && url != null && url!.isNotEmpty) {
       return hasBuilder ? builder!(url!) : ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: ImageUtils.net(url!, loading: ImageUtils.loading),
+        child: NetworkImageManage(
+          url: url!,
+          onSuccess: (body) {
+            _callOnSuccess();
+            return Image.memory(body);
+          },
+          onError: () {
+            _callOnError();
+            return _defaultReplace();
+          },
+        ),
       );
     }
-    return Container();
+    return _defaultReplace();
   }
-
-
 
   void changeFocus() {
     if(!isPrefix) {
       setState(() {
         _isFocus = !_isFocus;
       });
+      _focusNode.requestFocus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return _isFocus ? FocusableField(
-      controller: widget.controller,
+    return _isFocus || isPrefix ? NamedTextField(
+      controller: controller,
       name: widget.name,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
@@ -540,19 +565,20 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
       enableBorder: widget.enableBorder,
       hint: widget.hint,
       label: widget.label,
-      onChanged: widget.onChange,
+      onChanged: (name, value) {
+        url = value;
+        if(widget.onChange != null) {
+          widget.onChange!(name, value);
+        }
+      },
       validators: [
         FormBuilderValidators.url(),
         ...?widget.validators
       ],
-      onUnFocus: (name, value) {
-        setState(() {
-          url = value;
-        });
-      },
+      focusNode: _focusNode,
     ) : InkWell(
       onTap: changeFocus,
-      child: _image(),
+      child: _replaceImage(),
     );
   }
 }

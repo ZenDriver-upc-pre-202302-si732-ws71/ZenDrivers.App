@@ -91,10 +91,11 @@ class PostView extends StatelessWidget {
                     padding: AppPadding.topAndBottom(value: 4),
                     child: Text(post.title, style: AppText.bold,)
                   ),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: ImageUtils.net(post.image),
-                  ),
+                  if(post.image != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: ImageUtils.net(post.image!),
+                    ),
                   AppPadding.widget(
                     padding: AppPadding.top(),
                     child: Text(
