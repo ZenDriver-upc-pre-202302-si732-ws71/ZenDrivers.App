@@ -1,4 +1,5 @@
 import 'package:async_button_builder/async_button_builder.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
@@ -55,7 +56,7 @@ class ZenDrivers {
 
   static Widget back(BuildContext context, {void Function()? onPressed, Color color = Colors.white}) => IconButton(
     onPressed: onPressed ?? () =>  Navegations.back(context),
-    icon: Icon(Icons.arrow_back, color: color),
+    icon: Icon(FluentIcons.arrow_left_48_regular, color: color),
   );
 
   static const String defaultProfileUrl = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";

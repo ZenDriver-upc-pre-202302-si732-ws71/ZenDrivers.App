@@ -54,7 +54,7 @@ class _PostActionsState extends State<_PostActions> {
           appBar: AppBar(
             backgroundColor: /*Theme.of(context).colorScheme.secondary*/Colors.transparent,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(FluentIcons.arrow_left_48_regular),
               onPressed: () {
                 Navegations.back(context);
                 update();
@@ -70,8 +70,8 @@ class _PostActionsState extends State<_PostActions> {
   List<Widget> _optionsRow() {
     final widgets = <Widget> [
       IconButton(
-        icon: Icon(isLiked ? Icons.favorite : Icons.favorite_border,
-          color: isLiked ? Colors.red : null,
+        icon: Icon(isLiked ? FluentIcons.heart_48_filled : FluentIcons.heart_48_regular,
+          color: isLiked ? Colors.red : Colors.black,
         ),
         onPressed: () {
           setState(() {
@@ -94,7 +94,7 @@ class _PostActionsState extends State<_PostActions> {
 
     if(!showComments) {
       widgets.add(IconButton(
-        icon: const Icon(FluentIcons.comment_28_regular),
+        icon: const Icon(FluentIcons.comment_48_regular, color: Colors.black,),
         onPressed: _showComments,
       ));
       widgets.add(GestureDetector(

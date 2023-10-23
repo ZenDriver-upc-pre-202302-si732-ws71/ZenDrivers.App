@@ -51,6 +51,7 @@ class _ChangePasswordDialog extends StatelessWidget {
         ),
         _changeButton(context)
       ],
+      backgroundColor: Colors.white,
       content: FormBuilder(
         key: _formKey,
         child: Column(
@@ -60,6 +61,7 @@ class _ChangePasswordDialog extends StatelessWidget {
               controller: _currentPassword,
               name: "currentPassword",
               hint: "Current password",
+              label: "Current password",
               onChanged: _validate,
               padding: AppPadding.bottom(value: 12),
             ),
@@ -67,6 +69,7 @@ class _ChangePasswordDialog extends StatelessWidget {
               controller: _newPassword,
               name: "newPassword",
               hint: "New password",
+              label: "New password",
               onChanged: _validate,
               padding: AppPadding.bottom(value: 12),
             ),
@@ -74,6 +77,7 @@ class _ChangePasswordDialog extends StatelessWidget {
               controller: _newConfirmPassword,
               name: "confirmNewPassword",
               hint: "Confirm new password",
+              label: "Confirm new password",
               onChanged: (name, value) {
                 final field = _formKey.currentState?.fields[name];
                 if(field?.validate() ?? false) {
