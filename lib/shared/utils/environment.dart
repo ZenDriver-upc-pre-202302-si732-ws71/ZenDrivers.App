@@ -195,6 +195,7 @@ class AppDropdown<Ty> extends StatelessWidget {
   final EdgeInsets? padding;
   final String? Function(Ty?)? validator;
   final GlobalKey<FormBuilderFieldDecorationState>? dropdownKey;
+  final Widget? icon;
   const AppDropdown({
     super.key,
     required this.name,
@@ -206,6 +207,7 @@ class AppDropdown<Ty> extends StatelessWidget {
     this.current,
     this.padding,
     this.validator,
+    this.icon,
     this.dropdownKey
   });
 
@@ -219,7 +221,7 @@ class AppDropdown<Ty> extends StatelessWidget {
         initialValue: current,
         onChanged: onChange,
         items: items.map((e) => converter(e)).toList(),
-        icon: const Icon(FluentIcons.building_32_regular),
+        icon: icon,
         decoration: InputDecoration(
           border: InputFields.border,
           enabledBorder: InputFields.border,

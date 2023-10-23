@@ -24,8 +24,8 @@ class ListDrivers extends StatelessWidget {
 
   const ListDrivers({super.key, this.request});
 
-  static void toDriverView(BuildContext context, Driver driver, {bool showContact = true}) {
-    Navegations.persistentTo(context, widget: DriverProfile(driver: driver, showContact: showContact,));
+  static void toDriverView(BuildContext context, Driver driver, {bool showContact = true, bool withBar = true}) {
+    Navegations.persistentTo(context, widget: DriverProfile(driver: driver, showContact: showContact,), withNavBar: withBar);
   }
 
   Widget _driver(BuildContext context, Driver driver) => AppTile(

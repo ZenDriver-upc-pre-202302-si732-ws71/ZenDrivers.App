@@ -91,6 +91,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           child: AppDropdown(
             items: companies,
             current: companies.firstOrNull,
+            icon: const Icon(FluentIcons.building_32_regular),
             name: "companyId",
             label: "Company",
             hint: "Select a company",

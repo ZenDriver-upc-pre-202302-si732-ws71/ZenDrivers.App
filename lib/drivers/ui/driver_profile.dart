@@ -25,9 +25,9 @@ class DriverProfile extends StatelessWidget {
       child: const Text("Contact"),
       onSuccess: (value) {
         Inbox.toConversationView(context,
-            target: driver.account,
-            conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: driver.account, messages: []),
-            initialMessage: _contactMessage(credentials, driver.account)
+          target: driver.account,
+          conversation: value ?? Conversation(id: 0, sender: credentials.toSimpleAccount(), receiver: driver.account, messages: []),
+          initialMessage: _contactMessage(credentials, driver.account)
         );
       },
     );

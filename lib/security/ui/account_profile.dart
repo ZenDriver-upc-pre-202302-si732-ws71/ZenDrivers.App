@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:zendrivers/drivers/entities/driver.dart';
+import 'package:zendrivers/drivers/services/driver.dart';
+import 'package:zendrivers/drivers/ui/drivers.dart';
 import 'package:zendrivers/recruiters/entities/recruiter.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
@@ -80,6 +82,7 @@ class _ProfileFieldsState extends State<_ProfileFields> {
   final _formKey = GlobalKey<FormBuilderState>();
   Widget get logoutButton => widget.logoutButton;
   AccountService get accountService => widget.accountService;
+  DriverService _driverService = DriverService();
   bool edit = false;
 
   void reset() {
@@ -215,6 +218,16 @@ class _ProfileFieldsState extends State<_ProfileFields> {
               padding: edit && account.isRecruiter ? AppPadding.topAndBottom() : AppPadding.bottom(),
               child: ImageUtils.avatar(url: account.imageUrl, radius: 80)
             ),
+            if(!edit && account.isDriver)
+              AppAsyncButton(
+                future: () => _driverService.findByUsername(account.username),
+                child: const Text("View my driver profile"),
+                onSuccess: (driver) {
+                  if(driver != null) {
+                    ListDrivers.toDriverView(context, driver, withBar: false);
+                  }
+                },
+              ),
             Container(
               child: edit ? _editFields() : _showAccountFields(),
             ),

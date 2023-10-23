@@ -53,6 +53,7 @@ class ZenDriversPage extends StatelessWidget {
   late final PersistentTabController _controller;
   final _accountProfile = AccountProfile();
   final _searchInboxKey = GlobalKey<SearchBarState>();
+
   ZenDriversPage({super.key, this.initialIndex}) {
     _controller = PersistentTabController(initialIndex: initialIndex ?? 0);
   }
