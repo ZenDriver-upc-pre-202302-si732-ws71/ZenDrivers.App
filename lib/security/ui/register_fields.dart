@@ -13,6 +13,8 @@ import 'package:zendrivers/shared/utils/fields.dart' as form;
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'dart:async';
 
+import 'package:zendrivers/shared/utils/validators.dart';
+
 part 'register_driver_recruiter.dart';
 
 class RegisterFields extends StatelessWidget {
@@ -23,6 +25,7 @@ class RegisterFields extends StatelessWidget {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  final _imageUrlController = TextEditingController();
 
   final _emailRecruiterController = TextEditingController();
   final _descriptionRecruiterController = TextEditingController();
@@ -48,6 +51,7 @@ class RegisterFields extends StatelessWidget {
       _lastnameController.text = effectiveAccount.lastname;
 
       _phoneController.text = _maskPhone.maskText(effectiveAccount.phone);
+      _imageUrlController.text = effectiveAccount.imageUrl;
 
       if(effectiveAccount.isDriver) {
         _addressDriverController.text = effectiveAccount.driver!.address;
@@ -60,6 +64,7 @@ class RegisterFields extends StatelessWidget {
   }
 
   void _validateField(String name, String? value) => _formKey.currentState?.fields[name]?.validate();
+  void _invalidateField(String name, String errorText) => _formKey.currentState?.fields[name]?.invalidate(errorText);
 
   String? _validatePhone(String? value) {
     if(value != null) {
@@ -127,7 +132,7 @@ class RegisterFields extends StatelessWidget {
       key: _formKey,
       child: Column(
         children: <Widget>[
-          form.TextField(
+          form.NamedTextField(
             name: "firstname",
             controller: _firstnameController,
             onChanged: _validateField,
@@ -138,7 +143,7 @@ class RegisterFields extends StatelessWidget {
             padding: AppPadding.topAndBottom(),
             prefixIcon: const Icon(Icons.person),
           ),
-          form.TextField(
+          form.NamedTextField(
             name: "lastname",
             controller: _lastnameController,
             onChanged: _validateField,
@@ -150,7 +155,7 @@ class RegisterFields extends StatelessWidget {
             prefixIcon: const Icon(Icons.person),
           ),
           if(isNotEdit)
-          form.TextField(
+          form.NamedTextField(
             name: "phone",
             readOnly: isEdit,
             controller: _phoneController,
@@ -170,6 +175,18 @@ class RegisterFields extends StatelessWidget {
               onChanged: _validateField,
               padding: AppPadding.topAndBottom(),
             ),
+          form.ImageUrlField(
+            controller: _imageUrlController,
+            name: "imageUrl",
+            label: "Profile image",
+            hint: "Url for profile image",
+            onUrlSuccessOrEmpty: (name, url) {
+              afterBuild(callback: () => _validateField(name, url));
+            },
+            onUrlError: (name, url) {
+              afterBuild(callback: () => _invalidateField(name, "Invalid image url"));
+            },
+          ),
           if(isNotEdit)
             ..._passwordFields(),
           _RecruiterOrDriverForm(

@@ -19,6 +19,7 @@ class ImageUtils {
 
   static Widget net(String url, {
     Widget Function(BuildContext, Widget, ImageChunkEvent?)? loading,
+    Widget Function(BuildContext, Object, StackTrace?)? errorBuilder,
     double? width,
     double? height,
     Widget? defaultWidget,
@@ -27,6 +28,7 @@ class ImageUtils {
     if(url.isValidUrl()) {
       return Image.network(url,
         loadingBuilder: loading,
+        errorBuilder: errorBuilder,
         width: width,
         height: height,
         fit: fit,
@@ -35,28 +37,99 @@ class ImageUtils {
     return defaultWidget ?? Container();
   }
 
-  static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding}) {
+  static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding, void Function(String)? onError, Widget Function(String?, double, Widget)? avatarBuilder}) {
     final effectiveDefaultIcon = defaultIcon ?? Icon(Icons.person, color: Colors.black, size: radius * 1.5,);
-    final effectiveNetworkImage = url != null && url.isValidUrl();
+    final isValidUrl = url != null;
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: Container(
         decoration: BoxDecorations.circle(color: Colors.grey),
-        child: CircleAvatar(
-          backgroundColor: Colors.transparent,
+        child: avatarBuilder != null ? avatarBuilder(url, radius, effectiveDefaultIcon) : CircleAvatarManage(
           radius: radius,
-          backgroundImage: effectiveNetworkImage ? NetworkImage(url) : null,
-          child: effectiveNetworkImage ? null : effectiveDefaultIcon,
+          foregroundImage: isValidUrl ? NetworkImage(url) : null,
+          onForegroundError: () {
+            if(onError != null && isValidUrl) {
+              onError(url);
+            }
+            return effectiveDefaultIcon;
+          },
         ),
       ),
     );
   }
 }
 
+class CircleAvatarManage extends StatefulWidget {
+  final Widget? child;
+  final Color? backgroundColor;
+  final ImageProvider<Object>? backgroundImage;
+  final ImageProvider<Object>? foregroundImage;
+  final Widget Function()? onBackgroundError;
+  final Widget Function()? onForegroundError;
+  final double? radius;
+  const CircleAvatarManage({
+    super.key,
+    this.child,
+    this.backgroundColor,
+    this.backgroundImage,
+    this.foregroundImage,
+    this.radius,
+    this.onBackgroundError,
+    this.onForegroundError
+  });
+
+  @override
+  State<CircleAvatarManage> createState() => _CircleAvatarManageState();
+}
+
+class _CircleAvatarManageState extends State<CircleAvatarManage> {
+  bool _bgError = false;
+  bool _fgError = false;
+
+  bool get hasBackground => widget.backgroundImage != null;
+  bool get hasForeground => widget.foregroundImage != null;
+
+  bool get hasError => _fgError || _bgError;
+
+  Widget? _errorChild() {
+    if(_bgError && widget.onBackgroundError != null) {
+      return widget.onBackgroundError!();
+    }
+    if(_fgError && widget.onForegroundError != null) {
+      return widget.onForegroundError!();
+    }
+    return null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: widget.radius,
+      foregroundImage: widget.foregroundImage,
+      backgroundImage: widget.backgroundImage,
+      backgroundColor: widget.backgroundColor ?? Colors.transparent,
+      onBackgroundImageError: hasBackground ? (context, stack) {
+        setState(() {
+          _bgError = true;
+          _fgError = false;
+        });
+      } : null,
+      onForegroundImageError: hasForeground ? (context, stack) {
+        setState(() {
+          _bgError = false;
+          _fgError = true;
+        });
+      } : null,
+      child: hasError ? _errorChild() : null,
+    );
+  }
+}
+
+
 
 class RichFutureBuilder<Ty extends Object?> extends StatefulWidget {
   final Future<Ty> future;
-  final Widget? errorChild;
+  final Widget Function()? errorChild;
   final Widget Function(Ty) builder;
   final int maxSeconds;
   final String? timeoutMessage;
@@ -71,7 +144,7 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
   bool _break = false;
 
   Future<Ty> get future => widget.future;
-  Widget? get errorChild => widget.errorChild;
+  Widget? get errorChild => widget.errorChild != null ? widget.errorChild!() : null;
   Widget Function(Ty) get builder => widget.builder;
   int get maxSeconds => widget.maxSeconds;
   String? get timeoutMessage => widget.timeoutMessage;

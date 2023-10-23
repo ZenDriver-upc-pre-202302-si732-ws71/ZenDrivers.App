@@ -192,8 +192,9 @@ class _ProfileFieldsState extends State<_ProfileFields> {
         fields.putIfAbsent("birth", () => account.driver?.birth.toIso8601String());
         request.driver = DriverUpdate.fromJson(fields);
       }
+      ZenDrivers.prints(request.toRawJson());
 
-      return accountService.update(account.id, request);
+      return MessageResponse.empty();
     },
     onSuccess: (response) {
       AppToast.show(context, response.message);

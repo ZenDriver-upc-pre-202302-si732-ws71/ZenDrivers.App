@@ -19,7 +19,7 @@ class RegisterPage extends StatelessWidget {
       ),
       body: RichFutureBuilder(
         future: _companyService.getAll(),
-        errorChild: AppButton(
+        errorChild: () => AppButton(
           child: const Text("To login"),
           onClick: () => Navegations.back(context),
         ),

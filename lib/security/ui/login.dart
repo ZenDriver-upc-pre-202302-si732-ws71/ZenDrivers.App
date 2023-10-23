@@ -32,7 +32,7 @@ class LoginPage extends StatelessWidget {
               }
               return _LoginForm();
             },
-            errorChild: _LoginForm(),
+            errorChild: () => _LoginForm(),
             showException: false,
           ),
         ],

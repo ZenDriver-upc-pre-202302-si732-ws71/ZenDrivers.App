@@ -215,7 +215,7 @@ class _ConversationView extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 5, bottom: 8, left: 5),
                   child: Container(
                     decoration: BoxDecorations.search(radius: 20),
-                    child: fields.TextField(
+                    child: fields.NamedTextField(
                       controller: _messageController,
                       padding: AppPadding.horAndVer(horizontal: 10, vertical: 0),
                       keyboardType: TextInputType.multiline,

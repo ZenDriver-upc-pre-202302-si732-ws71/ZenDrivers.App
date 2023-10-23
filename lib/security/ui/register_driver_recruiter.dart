@@ -61,7 +61,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
 
       return [
         AppPadding.widget(padding: EdgeInsets.zero),
-        form.TextField(
+        form.NamedTextField(
           controller: emailController,
           name: "email",
           onChanged: onChangeField,
@@ -72,7 +72,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
             FormBuilderValidators.email()
           ],
         ),
-        form.TextField(
+        form.NamedTextField(
           controller: descriptionController,
           name: "description",
           onChanged: onChangeField,
@@ -95,7 +95,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
       ];
     }
     return [
-      form.TextField(
+      form.NamedTextField(
         controller: addressController,
         name: "address",
         onChanged: onChangeField,

@@ -128,6 +128,7 @@ class AccountUpdateRequest extends JsonSerializable {
   final String? lastname;
   final String? username;
   final String? phone;
+  final String? imageUrl;
   RecruiterUpdate? recruiter;
   DriverUpdate? driver;
 
@@ -138,6 +139,7 @@ class AccountUpdateRequest extends JsonSerializable {
     this.phone,
     this.recruiter,
     this.driver,
+    this.imageUrl
   });
 
   factory AccountUpdateRequest.fromRawJson(String str) => AccountUpdateRequest.fromJson(json.decode(str));
@@ -152,6 +154,7 @@ class AccountUpdateRequest extends JsonSerializable {
     phone: json["phone"],
     recruiter: json["recruiter"] == null ? null : RecruiterUpdate.fromJson(json["recruiter"]),
     driver: json["driver"] == null ? null : DriverUpdate.fromJson(json["driver"]),
+    imageUrl: json["imageUrl"]
   );
 
   @override
@@ -162,6 +165,7 @@ class AccountUpdateRequest extends JsonSerializable {
     "phone": phone,
     "recruiter": recruiter?.toJson(),
     "driver": driver?.toJson(),
+    "imageUrl": imageUrl
   };
 }
 

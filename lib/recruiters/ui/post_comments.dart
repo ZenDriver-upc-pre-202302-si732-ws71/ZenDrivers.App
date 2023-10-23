@@ -109,7 +109,7 @@ class _PostCommentsState extends State<_PostComments> {
           padding: AppPadding.topAndBottom(value: 5),
           child: Container(
             decoration: BoxDecorations.search(radius: 15),
-            child: form.TextField(
+            child: form.NamedTextField(
               name: "comment",
               padding: AppPadding.left(),
               controller: _commentController,

@@ -61,7 +61,7 @@ class Inbox extends StatelessWidget {
         Expanded(
           child: Container(
             decoration: BoxDecorations.search(),
-            child: fields.TextField(
+            child: fields.NamedTextField(
               name: "search",
               onChanged: _searchRequest,
               border: InputBorder.none,
