@@ -135,7 +135,18 @@ class RichFutureBuilder<Ty extends Object?> extends StatefulWidget {
   final int maxSeconds;
   final String? timeoutMessage;
   final bool showException;
-  const RichFutureBuilder({super.key, required this.future, this.errorChild, required this.builder, this.maxSeconds = 10, this.showException = true, this.timeoutMessage});
+  final EdgeInsets? loadingPadding;
+
+  const RichFutureBuilder({
+    super.key,
+    required this.future,
+    this.errorChild,
+    required this.builder,
+    this.maxSeconds = 10,
+    this.showException = true,
+    this.timeoutMessage,
+    this.loadingPadding
+  });
 
   @override
   State<RichFutureBuilder<Ty>> createState() => _RichFutureBuilderState<Ty>();
@@ -143,6 +154,7 @@ class RichFutureBuilder<Ty extends Object?> extends StatefulWidget {
 
 class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilder<Ty>> {
   bool _break = false;
+  bool _showed = false;
 
   Future<Ty> get future => widget.future;
   Widget? get errorChild => widget.errorChild != null ? widget.errorChild!() : null;
@@ -150,6 +162,8 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
   int get maxSeconds => widget.maxSeconds;
   String? get timeoutMessage => widget.timeoutMessage;
   bool get showException => widget.showException;
+  EdgeInsets get loadingPadding => widget.loadingPadding ?? EdgeInsets.zero;
+
 
   void _timeToBreak() {
     Timer(Duration(seconds: maxSeconds), () {
@@ -170,12 +184,17 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
         if(snapshot.connectionState == ConnectionState.waiting) {
           if(!_break) {
             _timeToBreak();
-            return const Center(child: CircularProgressIndicator(),);
+            return Center(
+              child: AppPadding.widget(
+                padding: loadingPadding,
+                child: const CircularProgressIndicator(),
+              ),
+            );
           }
           if(_break) {
             return AppToast(
               message: showException ? timeoutMessage ?? "The request took too long (already of $maxSeconds seconds)." : null,
-              child: errorChild,
+              child: !_showed ? errorChild : null,
             );
           }
         }
@@ -185,7 +204,6 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
           return AppToast(
             message: showException ? "${snapshot.error}" : null,
             child: errorChild,
-
           );
         }
 
@@ -195,8 +213,9 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
             child: errorChild,
           );
         }
-
-        return builder(snapshot.data as Ty);
+        final body = builder(snapshot.data as Ty);
+        _showed = true;
+        return body;
       },
     );
   }

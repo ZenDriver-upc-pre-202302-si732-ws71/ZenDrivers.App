@@ -137,6 +137,93 @@ class NamedTextField extends StatelessWidget {
   }
 }
 
+class FocusableField extends StatelessWidget {
+  final String name;
+  final TextEditingController? controller;
+  final void Function(String, String?)? onChanged;
+  final List<FormFieldValidator<String?>>? validators;
+  final String? hint;
+  final EdgeInsets? padding;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? formatters;
+  final InputBorder? border;
+  final InputBorder? enableBorder;
+  final bool showLabel;
+  final int? maxLines;
+  final int? minLines;
+  final TextCapitalization textCapitalization;
+  final bool readOnly;
+  final String? label;
+  final bool obscureText;
+  final _node = FocusNode();
+  final void Function(String, String?)? onFocus;
+  final void Function(String, String?)? onUnFocus;
+
+  void _defaultFocus(String name, String? value) {}
+
+  FocusableField({
+    super.key,
+    required this.name,
+    this.controller,
+    this.onChanged,
+    this.validators,
+    this.hint,
+    this.padding,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.keyboardType,
+    this.formatters,
+    this.border,
+    this.enableBorder,
+    this.showLabel = true,
+    this.maxLines = 1,
+    this.minLines,
+    this.textCapitalization = TextCapitalization.none,
+    this.readOnly = false,
+    this.label,
+    this.obscureText = false,
+    this.onFocus,
+    this.onUnFocus
+  }) {
+    _node.addListener(() {
+      if(_node.hasFocus) {
+        (onFocus ?? _defaultFocus)(name, controller?.text);
+      }
+      else {
+        (onUnFocus ?? _defaultFocus)(name, controller?.text);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NamedTextField(
+      name: name,
+      controller: controller,
+      onChanged: onChanged,
+      validators: validators,
+      hint: hint,
+      padding: padding,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      keyboardType: keyboardType,
+      border: border,
+      showLabel: showLabel,
+      minLines: minLines,
+      enableBorder: enableBorder,
+      maxLines: maxLines,
+      textCapitalization: textCapitalization,
+      label: label,
+      obscureText: obscureText,
+      readOnly: readOnly,
+      focusNode: _node,
+    );
+  }
+}
+
+
 class PasswordField extends StatefulWidget {
   final TextEditingController controller;
   final void Function(String, String?) onChanged;
@@ -332,6 +419,7 @@ class ImageUrlField extends StatefulWidget {
   final String? hint;
   final String? label;
   final void Function(String, String)? onUrlError;
+  final List<FormFieldValidator<String?>>? validators;
   const ImageUrlField({
     super.key,
     required this.name,
@@ -347,6 +435,7 @@ class ImageUrlField extends StatefulWidget {
     this.hint,
     this.label,
     this.onUrlError,
+    this.validators,
   });
 
   @override
@@ -373,6 +462,12 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
     }
   }
 
+  void _callOnError() {
+    if(widget.onUrlError != null) {
+      widget.onUrlError!(widget.name, url!);
+    }
+  }
+
   Widget _default(Widget icon) {
     _callOnSuccess();
     return icon;
@@ -392,12 +487,14 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
                 _callOnSuccess();
                 return ImageUtils.avatar(url: url, radius: radius + 5);
               }
+              else {
+                _callOnError();
+              }
+
               return defaultIcon;
             },
             errorChild: () {
-              if(widget.onUrlError != null) {
-                widget.onUrlError!(widget.name, url);
-              }
+              _callOnError();
               return defaultIcon;
             },
             showException: false,
@@ -418,11 +515,7 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
     return Container();
   }
 
-  void _onChange(String name, String? value) {
-    setState(() {
-      url = value;
-    });
-  }
+
 
   void changeFocus() {
     if(!isPrefix) {
@@ -434,21 +527,26 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
 
   @override
   Widget build(BuildContext context) {
-    return _isFocus ? NamedTextField(
+    return _isFocus ? FocusableField(
       controller: widget.controller,
       name: widget.name,
       maxLines: widget.maxLines,
       minLines: widget.minLines,
       showLabel: widget.showLabel,
       prefixIcon: _prefixImage(),
-      onChanged: _onChange,
       border: widget.border,
       enableBorder: widget.enableBorder,
       hint: widget.hint,
       label: widget.label,
       validators: [
         FormBuilderValidators.url(),
+        ...?widget.validators
       ],
+      onUnFocus: (name, value) {
+        setState(() {
+          url = value;
+        });
+      },
     ) : InkWell(
       onTap: changeFocus,
       child: _image(),

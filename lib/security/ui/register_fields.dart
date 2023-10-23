@@ -65,7 +65,7 @@ class RegisterFields extends StatelessWidget {
   }
 
   void _validateField(String name, String? value) => _formKey.currentState?.fields[name]?.validate();
-  void _invalidateField(String name, String errorText) => _formKey.currentState?.fields[name]?.invalidate(errorText);
+  void _invalidateField(String name, String errorText) => _formKey.currentState?.fields[name]?.invalidate(errorText, shouldFocus: false);
 
   String? _validatePhone(String? value) {
     if(value != null) {
