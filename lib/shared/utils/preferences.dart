@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zendrivers/security/entities/login.dart';
-import 'package:zendrivers/shared/utils/converters.dart';
 
 class AppPreferences {
   SharedPreferences? _preferences;
@@ -48,6 +47,11 @@ class AppPreferences {
     return false;
   }
 
+  void setImageUrl(String? url) {
+    if(hasCredentials) {
+      _credentials?.imageUrl = url;
+    }
+  }
 
   Future<void> load() async => _preferences = await SharedPreferences.getInstance();
 

@@ -8,9 +8,13 @@ import 'package:zendrivers/recruiters/entities/company.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
 import 'package:zendrivers/security/entities/register.dart';
+import 'package:zendrivers/security/services/account.dart';
+import 'package:zendrivers/security/ui/login.dart';
+import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart' as form;
+import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'dart:async';
 
@@ -38,6 +42,8 @@ class RegisterFields extends StatelessWidget {
   final Account? account;
   final List<Company>? companies;
 
+  final AccountService _accountService = AccountService();
+
   bool get isEdit => account != null;
   bool get isNotEdit => companies != null;
 
@@ -52,7 +58,7 @@ class RegisterFields extends StatelessWidget {
       _lastnameController.text = effectiveAccount.lastname;
 
       _phoneController.text = _maskPhone.maskText(effectiveAccount.phone);
-      _imageUrlController.text = effectiveAccount.imageUrl;
+      _imageUrlController.text = effectiveAccount.imageUrl ?? "";
 
       if(effectiveAccount.isDriver) {
         _addressDriverController.text = effectiveAccount.driver!.address;
@@ -64,7 +70,7 @@ class RegisterFields extends StatelessWidget {
     }
   }
 
-  void _validateField(String name, String? value) => _formKey.currentState?.fields[name]?.validate();
+  void _validateField(String name, String? value, {bool focusOnError=true}) => _formKey.currentState?.fields[name]?.validate(focusOnInvalid: focusOnError);
   void _invalidateField(String name, String errorText) => _formKey.currentState?.fields[name]?.invalidate(errorText, shouldFocus: false);
 
   String? _validatePhone(String? value) {
@@ -76,18 +82,8 @@ class RegisterFields extends StatelessWidget {
     return null;
   }
 
-  DriverSave _driverSave() => DriverSave(
-    address: _addressDriverController.text,
-    birth: DateTime.now()
-  );
 
-  RecruiterSave _recruiterSave() => RecruiterSave(
-    email: _emailRecruiterController.text,
-    description: _descriptionRecruiterController.text,
-    companyId: 1
-  );
-
-  void _register(BuildContext context, UserType role) {
+  Future<MessageResponse> _register(BuildContext context, UserType role) async {
     if(_formKey.currentState?.validate() ?? false) {
       form.InputFields.unFocus(context);
       final fields = _formKey.currentState?.fields.map((key, value) => MapEntry(key, value.value));
@@ -97,12 +93,15 @@ class RegisterFields extends StatelessWidget {
         fields["phone"] = _maskPhone.unmaskText(fields["phone"]);
         fields["driver"] = role == UserType.driver ? DriverSave.fromJson(fields).toJson() : null;
         fields["recruiter"] = role == UserType.recruiter ? RecruiterSave.fromJson(fields).toJson() : null;
-        ZenDrivers.prints(fields);
-        ZenDrivers.prints(SignupRequest.fromJson(fields).toRawJson());
+
+        if((fields["imageUrl"] as String).isEmpty) {
+          fields["imageUrl"] = null;
+        }
+        final request = SignupRequest.fromJson(fields);
+        return _accountService.signup(request);
       }
-
-
     }
+    return MessageResponse(message: "Fill all required fields");
   }
 
   List<Widget> _passwordFields() => [
@@ -176,9 +175,7 @@ class RegisterFields extends StatelessWidget {
             name: "imageUrl",
             label: "Profile image",
             hint: "Url for profile image",
-            onUrlSuccessOrEmpty: (name, url) {
-              afterBuild(callback: () => _validateField(name, url));
-            },
+            onChange: _validateField,
             onUrlError: (name, url) {
               afterBuild(callback: () => _invalidateField(name, "Invalid image url"));
             },
@@ -192,6 +189,12 @@ class RegisterFields extends StatelessWidget {
             onChangeField: _validateField,
             companies: companies ?? [],
             onRegister: (role) => _register(context, role),
+            onRegisterSuccess: (response) {
+              AppToast.show(context, response.message);
+              if(response.valid) {
+                Navegations.persistentReplace(context, widget: LoginPage());
+              }
+            },
             isEdit: isEdit,
             role: account?.role,
           )

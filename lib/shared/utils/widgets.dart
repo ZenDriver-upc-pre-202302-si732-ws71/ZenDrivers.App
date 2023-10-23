@@ -41,6 +41,7 @@ class ImageUtils {
   static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding, void Function(String)? onError, Widget Function(String?, double, Widget)? avatarBuilder}) {
     final effectiveDefaultIcon = defaultIcon ?? InputFields.person(color: Colors.black, size: radius * 1.5,);
     final isValidUrl = url != null;
+    ZenDrivers.prints(isValidUrl);
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: Container(
@@ -54,6 +55,7 @@ class ImageUtils {
             }
             return effectiveDefaultIcon;
           },
+          child: effectiveDefaultIcon,
         ),
       ),
     );
@@ -104,6 +106,7 @@ class _CircleAvatarManageState extends State<CircleAvatarManage> {
 
   @override
   Widget build(BuildContext context) {
+    ZenDrivers.prints(hasError, debugName: "Circle");
     return CircleAvatar(
       radius: widget.radius,
       foregroundImage: widget.foregroundImage,
@@ -121,7 +124,7 @@ class _CircleAvatarManageState extends State<CircleAvatarManage> {
           _fgError = true;
         });
       } : null,
-      child: hasError ? _errorChild() : null,
+      child: (hasError ? _errorChild() : null) ?? widget.child,
     );
   }
 }

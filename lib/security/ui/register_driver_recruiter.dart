@@ -7,7 +7,9 @@ class _RecruiterOrDriverForm extends StatefulWidget {
   final TextEditingController addressController;
 
   final List<Company> companies;
-  final void Function(UserType) onRegister;
+  final Future<MessageResponse> Function(UserType) onRegister;
+  final Function(MessageResponse)? onRegisterSuccess;
+  final Function(dynamic)? onRegisterError;
 
   final Function(String, String?) onChangeField;
 
@@ -22,6 +24,8 @@ class _RecruiterOrDriverForm extends StatefulWidget {
     required this.onChangeField,
     required this.companies,
     required this.onRegister,
+    this.onRegisterSuccess,
+    this.onRegisterError,
     this.role,
     this.isEdit
   });
@@ -38,7 +42,9 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
   void Function(String, String?) get onChangeField => widget.onChangeField;
   List<Company> get companies => widget.companies;
 
-  void Function(UserType) get onRegister => widget.onRegister;
+  Future<MessageResponse> Function(UserType) get onRegister => widget.onRegister;
+  void Function(MessageResponse)? get onRegisterSuccess => widget.onRegisterSuccess;
+  void Function(dynamic)? get onRegisterError => widget.onRegisterError;
 
   bool get isEdit => widget.isEdit ?? false;
 
@@ -84,6 +90,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           width: 200,
           child: AppDropdown(
             items: companies,
+            current: companies.firstOrNull,
             name: "companyId",
             label: "Company",
             hint: "Select a company",
@@ -101,6 +108,10 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
         onChanged: onChangeField,
         prefixIcon: form.InputFields.home(),
         padding: AppPadding.topAndBottom(),
+        validators: [
+          FormBuilderValidators.required(),
+          FormBuilderValidators.match("^[A-z0-9 '\",\\.]*?\$", errorText: "The field has a incorrect char")
+        ],
       )
     ];
   }
@@ -108,8 +119,10 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
   List<Widget> _registerActions() => [
     _UserRolButton(role: role, onChange: _changeRole),
     AppPadding.widget(padding: AppPadding.topAndBottom()),
-    AppButton(
-      onClick: () => onRegister(role),
+    AppAsyncButton(
+      future: () => onRegister(role),
+      onSuccess: onRegisterSuccess,
+      onError: onRegisterError,
       child: const Text("Sign up"),
     ),
     AppPadding.widget(padding: AppPadding.topAndBottom(value: 6))

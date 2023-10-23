@@ -46,7 +46,6 @@ class AccountProfile extends StatelessWidget {
       appBar: ZenDrivers.bar(context),
       body: RichFutureBuilder(
         showException: false,
-        timeoutMessage: "Time out",
         future: _accountService.getByUsername(_credentials.username),
         builder: (value) {
           return value != null ? _ProfileFields(
@@ -162,7 +161,7 @@ class _ProfileFieldsState extends State<_ProfileFields> {
           formKey: _formKey,
         ),
         TextButton(
-          onPressed: () =>  ZenDrivers.showDialog(
+          onPressed: () => ZenDrivers.showDialog(
             context: context,
             dialog: _ChangePasswordDialog()
           ),
@@ -192,14 +191,13 @@ class _ProfileFieldsState extends State<_ProfileFields> {
         fields.putIfAbsent("birth", () => account.driver?.birth.toIso8601String());
         request.driver = DriverUpdate.fromJson(fields);
       }
-      ZenDrivers.prints(request.toRawJson());
-
-      return MessageResponse.empty();
+      return accountService.update(account.id, request);
     },
     onSuccess: (response) {
       AppToast.show(context, response.message);
       if(response.valid) {
         account = account.fromUpdate(request);
+        accountService.preferences.setImageUrl(account.imageUrl);
         reset();
       }
     },
@@ -214,7 +212,7 @@ class _ProfileFieldsState extends State<_ProfileFields> {
         child: Column(
           children: <Widget>[
             AppPadding.widget(
-              padding: AppPadding.bottom(),
+              padding: edit && account.isRecruiter ? AppPadding.topAndBottom() : AppPadding.bottom(),
               child: ImageUtils.avatar(url: account.imageUrl, radius: 80)
             ),
             Container(
@@ -232,6 +230,8 @@ class _ProfileFieldsState extends State<_ProfileFields> {
                 ),
               ],
             ),
+            if(edit && account.isRecruiter)
+              AppPadding.widget(padding: AppPadding.topAndBottom())
           ],
         ),
       ),

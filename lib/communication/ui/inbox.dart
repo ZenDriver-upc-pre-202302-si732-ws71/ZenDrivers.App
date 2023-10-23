@@ -27,10 +27,11 @@ part 'messages.dart';
 
 class Inbox extends StatelessWidget {
   final ConversationService _conversationService = ConversationService();
-  LoginResponse get _credentials => _conversationService.preferences.getCredentials();
   final _conversationsKey = GlobalKey<_ConversationsState>();
+  final GlobalKey<SearchBarState>? searchKey;
+  LoginResponse get _credentials => _conversationService.preferences.getCredentials();
 
-  Inbox({super.key});
+  Inbox({super.key, this.searchKey});
 
   static void toConversationView(BuildContext context, {
     required SimpleAccount target,
@@ -51,29 +52,6 @@ class Inbox extends StatelessWidget {
 
 
   void _searchRequest(String name, String? value) => _conversationsKey.currentState?.search(value);
-  Widget _search() => AppPadding.widget(
-    child: Row(
-      children: <Widget>[
-        ImageUtils.avatar(
-            url: _credentials.imageUrl,
-            padding: AppPadding.right()
-        ),
-        Expanded(
-          child: Container(
-            decoration: BoxDecorations.search(),
-            child: fields.NamedTextField(
-              name: "search",
-              onChanged: _searchRequest,
-              border: InputBorder.none,
-              enableBorder: InputBorder.none,
-              showLabel: false,
-              prefixIcon: const Icon(FluentIcons.search_28_regular),
-            ),
-          ),
-        )
-      ],
-    )
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +69,11 @@ class Inbox extends StatelessWidget {
                   },
                   child: Column(
                     children: [
-                      _search(),
+                      SearchBar(
+                        key: searchKey,
+                        credentials: _credentials,
+                        search: _searchRequest,
+                      ),
                       Expanded(
                         child: _Conversations(
                           key: _conversationsKey,
@@ -109,6 +91,53 @@ class Inbox extends StatelessWidget {
           AppPadding.widget(padding: AppPadding.top())
         ],
       )
+    );
+  }
+}
+
+class SearchBar extends StatefulWidget {
+  final LoginResponse credentials;
+  final Function(String, String?) search;
+  const SearchBar({super.key, required this.credentials, required this.search});
+
+  @override
+  State<SearchBar> createState() => SearchBarState();
+}
+
+class SearchBarState extends State<SearchBar> {
+  LoginResponse get _credentials => widget.credentials;
+  void Function(String, String?) get _searchRequest => widget.search;
+
+  void update() {
+    setState(() {
+
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+        child: Row(
+          children: <Widget>[
+            ImageUtils.avatar(
+              url: _credentials.imageUrl,
+              padding: AppPadding.right()
+            ),
+            Expanded(
+              child: Container(
+                decoration: BoxDecorations.search(),
+                child: fields.NamedTextField(
+                  name: "search",
+                  onChanged: _searchRequest,
+                  border: InputBorder.none,
+                  enableBorder: InputBorder.none,
+                  showLabel: false,
+                  prefixIcon: const Icon(FluentIcons.search_28_regular),
+                ),
+              ),
+            )
+          ],
+        )
     );
   }
 }

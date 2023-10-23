@@ -419,6 +419,7 @@ class ImageUrlField extends StatefulWidget {
   final String? hint;
   final String? label;
   final void Function(String, String)? onUrlError;
+  final void Function(String, String?)? onChange;
   final List<FormFieldValidator<String?>>? validators;
   const ImageUrlField({
     super.key,
@@ -436,6 +437,7 @@ class ImageUrlField extends StatefulWidget {
     this.label,
     this.onUrlError,
     this.validators,
+    this.onChange
   });
 
   @override
@@ -538,6 +540,7 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
       enableBorder: widget.enableBorder,
       hint: widget.hint,
       label: widget.label,
+      onChanged: widget.onChange,
       validators: [
         FormBuilderValidators.url(),
         ...?widget.validators

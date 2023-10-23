@@ -11,7 +11,7 @@ class Account extends JsonSerializable {
   final String username;
   final String phone;
   final UserType role;
-  final String imageUrl;
+  final String? imageUrl;
   final RecruiterResource? recruiter;
   final DriverResource? driver;
 
@@ -25,7 +25,7 @@ class Account extends JsonSerializable {
     required this.username,
     required this.phone,
     required this.role,
-    required this.imageUrl,
+    this.imageUrl,
     this.recruiter,
     this.driver,
   });
@@ -70,7 +70,7 @@ class Account extends JsonSerializable {
       recruiter: request.recruiter != null ? recruiter?.fromUpdate(request.recruiter!) : recruiter,
       driver: request.driver != null ? driver?.fromUpdate(request.driver!) : driver,
       role: role,
-      imageUrl: imageUrl
+      imageUrl: request.imageUrl ?? imageUrl
     );
   }
 }

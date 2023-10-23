@@ -9,6 +9,7 @@ class SignupRequest extends JsonSerializable {
   final String username;
   final String password;
   final String phone;
+  final String? imageUrl;
   final UserType role;
   final RecruiterSave? recruiter;
   final DriverSave? driver;
@@ -20,6 +21,7 @@ class SignupRequest extends JsonSerializable {
     required this.password,
     required this.phone,
     required this.role,
+    this.imageUrl,
     this.recruiter,
     this.driver,
   });
@@ -38,6 +40,7 @@ class SignupRequest extends JsonSerializable {
     role: roleFromString(json["role"]),
     recruiter: json["recruiter"] != null ? RecruiterSave.fromJson(json["recruiter"]) : null,
     driver: json["driver"] != null ? DriverSave.fromJson(json["driver"]) : null,
+    imageUrl: json["imageUrl"]
   );
 
   @override
@@ -50,6 +53,7 @@ class SignupRequest extends JsonSerializable {
     "role": roleToString(role),
     "recruiter": recruiter?.toJson(),
     "driver": driver?.toJson(),
+    "imageUrl": imageUrl
   };
 }
 
@@ -95,7 +99,7 @@ class RecruiterSave {
   factory RecruiterSave.fromJson(Map<String, dynamic> json) => RecruiterSave(
     email: json["email"],
     description: json["description"],
-    companyId: json["companyId"],
+    companyId: int.parse(json["companyId"].toString()),
   );
 
   Map<String, dynamic> toJson() => {

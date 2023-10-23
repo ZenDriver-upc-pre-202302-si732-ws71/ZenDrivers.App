@@ -52,6 +52,7 @@ class ZenDriversPage extends StatelessWidget {
   final int? initialIndex;
   late final PersistentTabController _controller;
   final _accountProfile = AccountProfile();
+  final _searchInboxKey = GlobalKey<SearchBarState>();
   ZenDriversPage({super.key, this.initialIndex}) {
     _controller = PersistentTabController(initialIndex: initialIndex ?? 0);
   }
@@ -59,7 +60,7 @@ class ZenDriversPage extends StatelessWidget {
   List<Widget> _screens() => [
     Home(),
     Search(),
-    Inbox(),
+    Inbox(searchKey: _searchInboxKey,),
     _accountProfile
   ];
 
@@ -100,6 +101,7 @@ class ZenDriversPage extends StatelessWidget {
     items: _barItems(context),
     onItemSelected: (index) {
       _accountProfile.reset();
+      _searchInboxKey.currentState?.update();
     },
     hideNavigationBarWhenKeyboardShows: true,
     decoration: NavBarDecoration(

@@ -219,11 +219,12 @@ class AppDropdown<Ty> extends StatelessWidget {
         initialValue: current,
         onChanged: onChange,
         items: items.map((e) => converter(e)).toList(),
+        icon: const Icon(FluentIcons.building_32_regular),
         decoration: InputDecoration(
-            border: InputFields.border,
-            enabledBorder: InputFields.border,
-            labelText: label,
-            hintText: hint
+          border: InputFields.border,
+          enabledBorder: InputFields.border,
+          labelText: label,
+          hintText: hint,
         ),
         validator: validator,
       ),

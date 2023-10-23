@@ -34,7 +34,7 @@ class LoginResponse {
   final String firstname;
   final String lastname;
   final String username;
-  final String? imageUrl;
+  String? imageUrl;
   final String token;
   final UserType role;
 

@@ -34,7 +34,7 @@ class AccountService extends HttpService {
     return messageResponse(await post(body: request, append: "validate"), "Valid credentials");
   }
   Future<MessageResponse> signup(SignupRequest request) async {
-    final response = await post(body: request, append: "sign-up");
+    final response = await post(body: request, append: "sign-up", auth: false);
     return messageResponse(response, "Register successfully");
   }
   Future<MessageResponse> update(int id, AccountUpdateRequest request) async {
