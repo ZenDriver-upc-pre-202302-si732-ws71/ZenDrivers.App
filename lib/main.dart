@@ -29,6 +29,9 @@ class ZenDriversApp extends StatelessWidget {
           backgroundColor: Colors.white,
           accentColor: Colors.lightBlueAccent,
         ),
+        iconTheme: const IconThemeData(
+          color: Colors.white
+        ),
         useMaterial3: true,
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(

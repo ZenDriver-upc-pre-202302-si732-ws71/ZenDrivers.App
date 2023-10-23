@@ -22,6 +22,11 @@ class InputFields {
     size: size,
   );
 
+  static Icon driver({Color? color, double? size}) => Icon(FluentIcons.vehicle_car_32_regular,
+    color: color,
+    size: size,
+  );
+
   static Icon lock({bool on = true, Color? color, double? size}) => Icon(on ? FluentIcons.lock_closed_32_regular : FluentIcons.lock_open_32_regular,
     color: color,
     size: size,
@@ -38,6 +43,11 @@ class InputFields {
   );
 
   static Icon home({Color? color, double? size}) => Icon(FluentIcons.home_32_regular,
+    color: color,
+    size: size,
+  );
+
+  static Icon email({Color? color, double? size}) => Icon(FluentIcons.mail_32_regular,
     color: color,
     size: size,
   );
@@ -132,6 +142,7 @@ class PasswordField extends StatefulWidget {
   final void Function(String, String?) onChanged;
   final String? name;
   final String? hint;
+  final String? label;
   final EdgeInsets? padding;
   final Duration showDuration;
 
@@ -142,7 +153,8 @@ class PasswordField extends StatefulWidget {
     this.name,
     this.hint,
     this.padding,
-    this.showDuration = const Duration(seconds: 4)
+    this.showDuration = const Duration(seconds: 4),
+    this.label
   });
 
   @override
@@ -194,6 +206,8 @@ class _PasswordFieldState extends State<PasswordField> {
         FormBuilderValidators.required(),
         FormBuilderValidators.minLength(4, errorText: "Min length is 4")
       ],
+      label: widget.label,
+      hint: hint,
       onChanged: onChanged,
     );
   }
@@ -263,6 +277,46 @@ class ShowField extends StatelessWidget {
     );
   }
 }
+
+class TextOnlyField extends StatelessWidget {
+  final String name;
+  final TextEditingController? controller;
+  final String? label;
+  final String? hint;
+  final List<FormFieldValidator<String?>>? validators;
+  final EdgeInsets? padding;
+  final Widget? prefixIcon;
+  final void Function(String, String?)? onChanged;
+  const TextOnlyField({
+    super.key,
+    required this.name,
+    this.controller,
+    this.label,
+    this.hint,
+    this.validators,
+    this.padding,
+    this.prefixIcon,
+    this.onChanged
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return NamedTextField(
+      name: name,
+      controller: controller,
+      prefixIcon: prefixIcon ?? InputFields.person(),
+      onChanged: onChanged,
+      label: label,
+      hint: hint,
+      padding: padding ?? AppPadding.topAndBottom(),
+      validators: [
+        FormBuilderValidators.match(r"^[A-z ]*$", errorText: "${label ?? name.toTitleCase()} must contains only letters and spaces"),
+        ...?validators
+      ],
+    );
+  }
+}
+
 
 class ImageUrlField extends StatefulWidget {
   final String name;

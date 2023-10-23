@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
+import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 
 class ImageUtils {
@@ -38,7 +39,7 @@ class ImageUtils {
   }
 
   static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding, void Function(String)? onError, Widget Function(String?, double, Widget)? avatarBuilder}) {
-    final effectiveDefaultIcon = defaultIcon ?? Icon(Icons.person, color: Colors.black, size: radius * 1.5,);
+    final effectiveDefaultIcon = defaultIcon ?? InputFields.person(color: Colors.black, size: radius * 1.5,);
     final isValidUrl = url != null;
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,

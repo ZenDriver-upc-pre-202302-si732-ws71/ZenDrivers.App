@@ -1,4 +1,5 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -121,7 +122,8 @@ class RegisterFields extends StatelessWidget {
           }
         },
         name: "confirmPassword",
-        hint: "Confirm password",
+        hint: "Confirm your password",
+        label: "Confirm password",
         padding: AppPadding.topAndBottom()
     ),
   ];
@@ -132,27 +134,21 @@ class RegisterFields extends StatelessWidget {
       key: _formKey,
       child: Column(
         children: <Widget>[
-          form.NamedTextField(
+          form.TextOnlyField(
             name: "firstname",
             controller: _firstnameController,
             onChanged: _validateField,
             validators: [
               FormBuilderValidators.required(),
-              FormBuilderValidators.match(r"^[A-z ]*$", errorText: "Firstname must contains only letter and spaces")
             ],
-            padding: AppPadding.topAndBottom(),
-            prefixIcon: const Icon(Icons.person),
           ),
-          form.NamedTextField(
+          form.TextOnlyField(
             name: "lastname",
             controller: _lastnameController,
             onChanged: _validateField,
             validators: [
-              FormBuilderValidators.required(),
-              FormBuilderValidators.match(r"^[A-z ]*$", errorText: "Lastname must contains only letter and spaces")
+              FormBuilderValidators.required()
             ],
-            padding: AppPadding.topAndBottom(),
-            prefixIcon: const Icon(Icons.person),
           ),
           if(isNotEdit)
           form.NamedTextField(
@@ -165,7 +161,7 @@ class RegisterFields extends StatelessWidget {
               _validatePhone,
               FormBuilderValidators.equalLength(15, errorText: "Phone number must have a length equal to 9")
             ],
-            prefixIcon: const Icon(Icons.phone_callback),
+            prefixIcon: form.InputFields.phone(),
             keyboardType: TextInputType.number,
             formatters: [_maskPhone],
           ),

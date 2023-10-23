@@ -66,7 +66,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           name: "email",
           onChanged: onChangeField,
           padding: AppPadding.topAndBottom(),
-          prefixIcon: const Icon(Icons.email),
+          prefixIcon: form.InputFields.email(),
           validators: [
             FormBuilderValidators.required(),
             FormBuilderValidators.email()
@@ -76,7 +76,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
           controller: descriptionController,
           name: "description",
           onChanged: onChangeField,
-          prefixIcon: const Icon(Icons.description),
+          prefixIcon: const Icon(FluentIcons.text_description_32_regular),
           padding: AppPadding.topAndBottom(),
         ),
         if(!isEdit)
@@ -99,7 +99,7 @@ class _RecruiterOrDriverFormState extends State<_RecruiterOrDriverForm> {
         controller: addressController,
         name: "address",
         onChanged: onChangeField,
-        prefixIcon: const Icon(Icons.home_outlined),
+        prefixIcon: form.InputFields.home(),
         padding: AppPadding.topAndBottom(),
       )
     ];
@@ -161,7 +161,7 @@ class _UserRolButtonState extends State<_UserRolButton> {
             });
             return Future.delayed(const Duration(seconds: 1));
           },
-          iconBuilder: (role) => Icon(role == UserType.driver ? Icons.drive_eta_rounded : Icons.person),
+          iconBuilder: (role) => role == UserType.driver ? form.InputFields.driver(color: Colors.black) : form.InputFields.person(),
           textBuilder: (role) => Center(child: Text(roleToString(role).toTitleCase()),),
         )
     );
