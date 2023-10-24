@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
-import 'package:zendrivers/shared/utils/environment.dart';
 
 extension StringCasingExtension on String {
   String toCapitalized() => length > 0 ?'${this[0].toUpperCase()}${substring(1).toLowerCase()}':'';
@@ -96,7 +95,6 @@ extension DateTimeExtension on DateTime {
     }
 
     final week = isWeekAgo(now);
-    ZenDrivers.prints(week);
 
     final effectiveFormatter = week ? (weekFormat ?? DateFormatters.weekdayTime) : (weekLaterFormat ?? DateFormatters.dateTime);
     return effectiveFormatter.format(this);

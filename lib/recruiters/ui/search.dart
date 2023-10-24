@@ -22,15 +22,15 @@ class Search extends StatelessWidget {
     Navegations.persistentTo(context,
       widget: Scaffold(
         body: ZenDrivers.sliverScroll(
-            logoLeading: false,
-            title: title,
-            widTitle: MarqueeText(
-              speed: 20,
-              text: TextSpan(text: title),
-              textDirection: TextDirection.rtl,
-              style: const TextStyle(color: Colors.white),
-            ),
-            body: ListDrivers(request: request,)
+          logoLeading: false,
+          title: title,
+          widTitle: MarqueeText(
+            speed: 20,
+            text: TextSpan(text: title),
+            textDirection: TextDirection.rtl,
+            style: const TextStyle(color: Colors.white),
+          ),
+          body: ListDrivers(request: request,)
         ),
       )
     );

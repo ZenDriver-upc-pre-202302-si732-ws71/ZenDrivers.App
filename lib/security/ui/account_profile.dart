@@ -204,7 +204,6 @@ class _ProfileFieldsState extends State<_ProfileFields> {
         reset();
       }
     },
-    onError: (value) => ZenDrivers.prints(value),
     child: const Text("Save"),
   );
 

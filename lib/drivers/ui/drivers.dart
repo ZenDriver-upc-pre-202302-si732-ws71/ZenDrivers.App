@@ -28,36 +28,30 @@ class ListDrivers extends StatelessWidget {
 
   DriverService get _driverService => DriverService();
   final DriverFindRequest? request;
+  final _informationKey = GlobalKey<_DriverInformationState>();
 
-  const ListDrivers({super.key, this.request});
+  ListDrivers({super.key, this.request});
 
-  static void toDriverView(BuildContext context, Driver driver, {bool showContact = true, bool withBar = true}) {
-    Navegations.persistentTo(context, widget: DriverProfile(driver: driver, showContact: showContact,), withNavBar: withBar);
+  static void toDriverView(BuildContext context, Driver driver, {bool showContact = true, bool withBar = true, void Function()? onInformationChange}) {
+    Navegations.persistentTo(context, widget: DriverProfile(driver: driver, showContact: showContact, onInformationChange: onInformationChange,), withNavBar: withBar);
   }
 
   Widget _driver(BuildContext context, Driver driver) => AppTile(
-    onTap: () => toDriverView(context, driver),
+    onTap: () => toDriverView(context, driver,
+      onInformationChange: () => _informationKey.currentState?.update()
+    ),
     title: Row(
       children: <Widget>[
         ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
         AppPadding.widget(
-            padding: AppPadding.left(),
-            child: Text("${driver.account.firstname} ${driver.account.lastname}",
-              style: AppText.title,
-            )
+          padding: AppPadding.left(),
+          child: Text("${driver.account.firstname} ${driver.account.lastname}",
+            style: AppText.title,
+          )
         )
       ],
     ),
-    subtitle: Row(
-      children: <Widget>[
-        Expanded(
-          child: Text("Licenses: ${driver.licenses.length}"),
-        ),
-        Expanded(
-          child: Text("Driver experiences: ${driver.experiences.length}"),
-        )
-      ],
-    ),
+    subtitle: _DriverInformation(key: _informationKey, driver: driver),
   );
 
 
@@ -79,4 +73,37 @@ class ListDrivers extends StatelessWidget {
   }
 }
 
+class _DriverInformation extends StatefulWidget {
+  final Driver driver;
+
+  const _DriverInformation({super.key, required this.driver});
+
+  @override
+  State<_DriverInformation> createState() => _DriverInformationState();
+}
+
+class _DriverInformationState extends State<_DriverInformation> {
+
+  void update() {
+    setState(() {
+
+    });
+  }
+
+  Driver get driver => widget.driver;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Text("Licenses: ${driver.licenses.length}"),
+        ),
+        Expanded(
+          child: Text("Driver experiences: ${driver.experiences.length}"),
+        )
+      ],
+    );
+  }
+}
 

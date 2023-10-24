@@ -110,7 +110,6 @@ class _CircleAvatarManageState extends State<CircleAvatarManage> {
 
   @override
   Widget build(BuildContext context) {
-    ZenDrivers.prints(hasError, debugName: "Circle");
     return CircleAvatar(
       radius: widget.radius,
       foregroundImage: widget.foregroundImage,

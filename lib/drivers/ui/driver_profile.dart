@@ -6,8 +6,9 @@ class DriverProfile extends StatelessWidget {
 
   LoginResponse get _credentials => _conversationService.preferences.getCredentials();
   final bool showContact;
+  final void Function()? onInformationChange;
 
-  DriverProfile({super.key, required this.driver, this.showContact = true});
+  DriverProfile({super.key, required this.driver, this.showContact = true, this.onInformationChange});
 
   String _contactMessage(LoginResponse credentials, SimpleAccount target) {
     if(credentials.isDriver){
@@ -78,6 +79,11 @@ class DriverProfile extends StatelessWidget {
     ),
   );
 
+  void _callOnChange() {
+    if(onInformationChange != null) {
+      onInformationChange!();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +103,13 @@ class DriverProfile extends StatelessWidget {
                 credentials: _credentials,
                 driver: driver,
                 nothing: _nothingToShow(),
+                onChange: _callOnChange,
               ),
               _DriverLicenses(
                 credentials: _credentials,
                 driver: driver,
                 nothing: _nothingToShow(),
+                onChange: _callOnChange,
               )
             ],
           ),
@@ -160,7 +168,8 @@ class _DriverExperiences extends StatefulWidget {
   final LoginResponse credentials;
   final Driver driver;
   final Widget nothing;
-  const _DriverExperiences({super.key, required this.credentials, required this.driver, required this.nothing});
+  final void Function() onChange;
+  const _DriverExperiences({super.key, required this.credentials, required this.driver, required this.nothing, required this.onChange});
 
   @override
   State<_DriverExperiences> createState() => _DriverExperiencesState();
@@ -204,13 +213,14 @@ class _DriverExperiencesState extends State<_DriverExperiences> {
           title: "Work Experiences",
           permitAdd: isOwner,
           save: _save,
-          onSuccess: (response) {
+          onSuccess: (ctx, response) {
             AppToast.show(context, response.message);
             if(response.isValid) {
+              widget.onChange();
               setState(() {
                 driver.experiences.add(response.value!);
               });
-              Navegations.back(context);
+              Navegations.back(ctx);
             }
           },
           firstField: NamedTextField(
@@ -233,6 +243,7 @@ class _DriverExperiencesState extends State<_DriverExperiences> {
                 service: _driverExperienceService,
                 permitDelete: isOwner,
                 experienceDeleted: (value) {
+                  widget.onChange();
                   setState(() {
                     driver.experiences.remove(value);
                   });
@@ -248,7 +259,8 @@ class _DriverLicenses extends StatefulWidget {
   final LoginResponse credentials;
   final Driver driver;
   final Widget nothing;
-  const _DriverLicenses({super.key, required this.credentials, required this.driver, required this.nothing});
+  final void Function() onChange;
+  const _DriverLicenses({super.key, required this.credentials, required this.driver, required this.nothing, required this.onChange});
 
   @override
   State<_DriverLicenses> createState() => _DriverLicensesState();
@@ -292,13 +304,14 @@ class _DriverLicensesState extends State<_DriverLicenses> {
           save: _save,
           minDays: 365,
           endLastDate: DateTime.now().add(const Duration(days: 365 * 10)),
-          onSuccess: (response) {
+          onSuccess: (ctx, response) {
             AppToast.show(context, response.message);
             if(response.isValid) {
+              widget.onChange();
               setState(() {
                 driver.licenses.add(response.value!);
               });
-              Navegations.back(context);
+              Navegations.back(ctx);
             }
           },
           firstField: RichFutureBuilder(
@@ -325,6 +338,7 @@ class _DriverLicensesState extends State<_DriverLicenses> {
                 license: e,
                 service: _licenseService,
                 onDeleted: (value) {
+                  widget.onChange();
                   setState(() {
                     driver.licenses.remove(value);
                   });
@@ -387,16 +401,63 @@ class _InformationAdder<Ty extends Object?> extends StatelessWidget {
   final String title;
   final bool permitAdd;
   final Widget firstField;
-  final _startDate = MutableObject<DateTime?>(null);
-  final _endDate = MutableObject<DateTime?>(null);
   final Future<Ty> Function(DateTime?, DateTime?) save;
-  final void Function(Ty)? onSuccess;
+  final void Function(BuildContext, Ty)? onSuccess;
   final GlobalKey<FormBuilderState> formKey;
   final int minDays;
   final DateTime? endLastDate;
 
-  _InformationAdder({super.key,
+  const _InformationAdder({super.key,
     required this.title,
+    this.permitAdd=false,
+    required this.firstField,
+    required this.save,
+    this.onSuccess,
+    required this.formKey,
+    this.minDays = 90,
+    this.endLastDate
+  });
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+        padding: AppPadding.leftAndRight(),
+        child: Row(
+          children: [
+            Expanded(child: Text(title, style: AppText.title,)),
+            IconButton(
+              onPressed: () => ZenDrivers.showDialog(context: context, dialog: _AddInformationDialog(
+                permitAdd: permitAdd,
+                firstField: firstField,
+                save: save,
+                onSuccess: onSuccess,
+                formKey: formKey,
+                minDays: minDays,
+                endLastDate: endLastDate,
+              )),
+              icon: const Icon(FluentIcons.add_48_regular, color: Colors.black,),
+            )
+          ],
+        )
+    );
+  }
+}
+
+class _AddInformationDialog<Ty extends Object?> extends StatelessWidget {
+  final bool permitAdd;
+  final Widget firstField;
+  final _startDate = MutableObject<DateTime?>(null);
+  final _endDate = MutableObject<DateTime?>(null);
+  final Future<Ty> Function(DateTime?, DateTime?) save;
+  final void Function(BuildContext, Ty)? onSuccess;
+  final GlobalKey<FormBuilderState> formKey;
+  final int minDays;
+  final DateTime? endLastDate;
+
+  _AddInformationDialog({super.key,
     this.permitAdd=false,
     required this.firstField,
     required this.save,
@@ -423,64 +484,54 @@ class _InformationAdder<Ty extends Object?> extends StatelessWidget {
     }
     return null;
   }
-
-  Widget _addDialog(BuildContext context) => AlertDialog(
-    actions: [
-      AppButton(
-        onClick: () => Navegations.back(context),
-        child: const Text("Cancel"),
-      ),
-      AppAsyncButton(
-        future: () async => save(_startDate.value, _endDate.value),
-        onSuccess: onSuccess,
-        onError: (e) => AppToast.show(context, e.toString()),
-        child: const Text("Save"),
-      )
-    ],
-    content: FormBuilder(
-      key: formKey,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          firstField,
-          AppDatePicker(
-            label: "Start date",
-            onDateSelected: (date) => _startDate.value = date,
-            padding: AppPadding.bottom(),
-            lastDate: DateTime.now().subtract(Duration(days: minDays)),
-            validators: [
-              FormBuilderValidators.required(),
-              _startValidator
-            ],
-          ),
-          AppDatePicker(
-            label: "End date",
-            onDateSelected: (date) => _endDate.value = date,
-            padding: AppPadding.bottom(),
-            lastDate: endLastDate ?? DateTime.now(),
-            validators: [
-              FormBuilderValidators.required(),
-              _endValidator
-            ],
-          )
-        ],
-      ),
-    ),
-  );
-
   @override
   Widget build(BuildContext context) {
-    return AppPadding.widget(
-        padding: AppPadding.leftAndRight(),
-        child: Row(
-          children: [
-            Expanded(child: Text(title, style: AppText.title,)),
-            IconButton(
-              onPressed: () => ZenDrivers.showDialog(context: context, dialog: _addDialog(context)),
-              icon: const Icon(FluentIcons.add_48_regular, color: Colors.black,),
+    return AlertDialog(
+      actions: [
+        AppButton(
+          onClick: () => Navegations.back(context),
+          child: const Text("Cancel"),
+        ),
+        AppAsyncButton(
+          future: () async => save(_startDate.value, _endDate.value),
+          onSuccess: (value) {
+            if(onSuccess != null) {
+              onSuccess!(context, value);
+            }
+          },
+          onError: (e) => AppToast.show(context, e.toString()),
+          child: const Text("Save"),
+        )
+      ],
+      content: FormBuilder(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            firstField,
+            AppDatePicker(
+              label: "Start date",
+              onDateSelected: (date) => _startDate.value = date,
+              padding: AppPadding.bottom(),
+              lastDate: DateTime.now().subtract(Duration(days: minDays)),
+              validators: [
+                FormBuilderValidators.required(),
+                _startValidator
+              ],
+            ),
+            AppDatePicker(
+              label: "End date",
+              onDateSelected: (date) => _endDate.value = date,
+              padding: AppPadding.bottom(),
+              lastDate: endLastDate ?? DateTime.now(),
+              validators: [
+                FormBuilderValidators.required(),
+                _endValidator
+              ],
             )
           ],
-        )
+        ),
+      ),
     );
   }
 }
