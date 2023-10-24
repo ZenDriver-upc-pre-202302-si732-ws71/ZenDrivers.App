@@ -31,6 +31,7 @@ extension IterableDynamicExtensions on Iterable {
 
 extension IterableExtensions<Ty extends Object?> on Iterable<Ty> {
   List<Map<String, dynamic>> iterToJsonList(Map<String, dynamic> Function(Ty) converter) => map((e) => converter(e)).toList();
+
   Iterable<Ty> operator*(Object other) {
     if(other is int) {
       final effectiveIterable = <Ty>[];
@@ -40,6 +41,16 @@ extension IterableExtensions<Ty extends Object?> on Iterable<Ty> {
       return effectiveIterable;
     }
     return this;
+  }
+}
+
+extension ListExtensions<Ty extends Object?> on List<Ty> {
+  void replaceFor(Ty source, Ty other) {
+    try {
+      final index = indexOf(source);
+      insert(index, other);
+      remove(source);
+    } catch(_) {}
   }
 }
 

@@ -61,7 +61,7 @@ class _PostActionsState extends State<_PostActions> {
               },
             ),
           ),
-          body: SingleChildScrollView(child: PostView(post: post, showComments: true)),
+          body: SingleChildScrollView(child: PostView(post: post, showComments: true, )),
         )
     );
   }

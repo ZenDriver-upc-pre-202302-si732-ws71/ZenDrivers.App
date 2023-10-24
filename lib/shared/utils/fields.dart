@@ -74,6 +74,7 @@ class NamedTextField extends StatelessWidget {
   final String? label;
   final FocusNode? focusNode;
   final bool obscureText;
+  final bool alignLabelWithHint;
   const NamedTextField({
     super.key,
     required this.name,
@@ -96,7 +97,8 @@ class NamedTextField extends StatelessWidget {
     this.onTapOutside,
     this.label,
     this.focusNode,
-    this.obscureText = false
+    this.obscureText = false,
+    this.alignLabelWithHint=false
   });
 
 
@@ -123,6 +125,7 @@ class NamedTextField extends StatelessWidget {
           labelText: showLabel ? (label ?? titleCase) : null,
           hintText: hint ?? titleCase,
           border: border ?? InputFields.border,
+          alignLabelWithHint: alignLabelWithHint,
           enabledBorder: enableBorder ?? InputFields.border,
           prefixIcon: prefixIcon,
           suffixIcon: suffixIcon
@@ -468,6 +471,9 @@ class _ImageUrlFieldState extends State<ImageUrlField> {
       }
     });
     url = controller.text;
+    if(url != null) {
+      _isFocus = false;
+    }
   }
   void _callOnSuccess() {
     if(widget.onUrlSuccessOrEmpty != null) {

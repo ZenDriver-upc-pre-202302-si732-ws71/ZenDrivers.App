@@ -176,7 +176,7 @@ class _ConversationView extends StatelessWidget {
         ),
         widTitle: Row(
           children: <Widget>[
-            ImageUtils.avatar(url: target.imageUrl),
+            ImageUtils.avatar(url: target.imageUrl, defaultIconColor: Colors.white, bordColor: Colors.white),
             AppPadding.widget(
               child: Text("${target.firstname} ${target.lastname}",
               style: AppText.bold.copyWith(color: Colors.white),

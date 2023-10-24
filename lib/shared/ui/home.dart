@@ -19,7 +19,6 @@ class Home extends StatelessWidget {
 
   AppPreferences get _preferences => _postService.preferences;
   LoginResponse get _credentials => _preferences.getCredentials();
-  final _posts = MutableObject(<Post>[]);
   final _postsKey = GlobalKey<_HomePostsState>();
 
   Home({super.key});
@@ -31,30 +30,25 @@ class Home extends StatelessWidget {
         body: RichFutureBuilder(
           future: _postService.getAll(),
           builder: (posts) {
-            _posts.value = posts;
             return RefreshIndicator(
-              onRefresh: () async {
-                _postsKey.currentState?.update(await _postService.getAll());
-              },
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    if(_credentials.isRecruiter)
-                      _ActionBar(
-                        credentials: _credentials,
-                        onPost: (post) {
-                          if(!_posts.value.contains(post)) {
-                            _posts.value.add(post);
-                          }
-                          _postsKey.currentState?.update(_posts.value);
-                        },
-                      ),
-                    if(_credentials.isDriver)
-                      AppPadding.widget(padding: AppPadding.topAndBottom(value: 3)),
-                    _HomePosts(key: _postsKey, posts: _posts.value,),
-                    AppPadding.widget()
-                  ],
-                ),
+              onRefresh: () async => _postsKey.currentState?.update(await _postService.getAll()),
+              child: Column(
+                children: [
+                  if(_credentials.isRecruiter)
+                    _ActionBar(
+                      credentials: _credentials,
+                      onPost: (post) => _postsKey.currentState?.addNew(post),
+                    ),
+                  if(_credentials.isDriver)
+                    AppPadding.widget(padding: AppPadding.topAndBottom(value: 3)),
+                  Expanded(
+                    child: _HomePosts(
+                      key: _postsKey,
+                      posts: posts,
+                    ),
+                  ),
+                  AppPadding.widget()
+                ],
               ),
             );
           },
@@ -94,6 +88,12 @@ class _HomePostsState extends State<_HomePosts> {
     setState(() {});
   }
 
+  void addNew(Post post) {
+    setState(() {
+      _posts.insert(0, post);
+    });
+  }
+
   void _clickPostLike(Post source, bool liked) async {
     if(liked) {
       await _likeService.likePost(LikeRequest(postId: source.id));
@@ -105,13 +105,26 @@ class _HomePostsState extends State<_HomePosts> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: _posts.map((post) => PostView(
-        post: post,
-        postClicked: _clickPostLike,
-        showComments: false,
-        isDriver: _credentials.isDriver,
-      )).toList(),
+    return ListView.builder(
+      itemCount: _posts.length,
+      itemBuilder: (context, index) {
+        final post = _posts[index];
+        return PostView(
+          key: ObjectKey(post),
+          post: post,
+          postClicked: _clickPostLike,
+          showComments: false,
+          isDriver: _credentials.isDriver,
+          postEdited: (source, updated) {
+            _posts.replaceFor(source, updated);
+          },
+          postDeleted: (post) {
+            setState(() {
+              _posts.remove(post);
+            });
+          },
+        );
+      },
     );
   }
 }

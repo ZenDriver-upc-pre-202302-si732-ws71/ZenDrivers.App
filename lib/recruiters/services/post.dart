@@ -15,6 +15,17 @@ class PostService extends HttpService {
     final response = await post(body: request);
     return response.isCreated ? EntityResponse(Post.fromRawJson(response.body)) : EntityResponse.invalid();
   }
+
+  Future<EntityResponse<Post>> update(int id, PostSave request) async {
+    final response = await put(body: request, append: "$id");
+    return response.isOk ? EntityResponse(Post.fromRawJson(response.body)) : EntityResponse.invalid(message: response.body);
+  }
+
+  Future<MessageResponse> deletePost(int id) async {
+    final response = await delete(append: "$id");
+    return messageResponse(response, "Delete successfully");
+  }
+
   Future<List<Post>> getFrom(String recruiterUsername) async => await iterableGet(converter: Post.fromJson, append: "recruiters/$recruiterUsername");
 
 }

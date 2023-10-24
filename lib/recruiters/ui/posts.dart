@@ -8,7 +8,9 @@ import 'package:zendrivers/drivers/ui/drivers.dart';
 import 'package:zendrivers/recruiters/entities/comment.dart';
 import 'package:zendrivers/recruiters/entities/post.dart';
 import 'package:zendrivers/recruiters/services/comment.dart';
+import 'package:zendrivers/recruiters/services/post.dart';
 import 'package:zendrivers/recruiters/services/recruiter.dart';
+import 'package:zendrivers/recruiters/ui/post_create.dart';
 import 'package:zendrivers/recruiters/ui/recruiters.dart';
 import 'package:zendrivers/security/entities/account.dart';
 import 'package:zendrivers/security/entities/login.dart';
@@ -23,44 +25,102 @@ import 'package:zendrivers/shared/utils/environment.dart';
 part 'post_actions.dart';
 part 'post_comments.dart';
 
-class PostView extends StatelessWidget {
+class PostView extends StatefulWidget {
   final Post post;
   final bool showComments;
   final bool? isDriver;
   final Function(Post, bool)? postClicked;
   final Function(Post, PostComment)? postCommented;
-  final _actionsKey = GlobalKey<_PostActionsState>();
-  PostView({
+  final Function(Post, Post)? postEdited;
+  final Function(Post)? postDeleted;
+
+  const PostView({
     super.key,
     required this.post,
     required this.showComments,
     this.isDriver,
     this.postClicked,
-    this.postCommented
+    this.postCommented,
+    this.postEdited,
+    this.postDeleted
   });
 
+  @override
+  State<PostView> createState() => _PostViewState();
+}
+
+class _PostViewState extends State<PostView> {
+  late Post post;
+  final _postService = PostService();
+  final _actionsKey = GlobalKey<_PostActionsState>();
+  LoginResponse get credentials => _postService.preferences.getCredentials();
+
+  @override
+  void initState() {
+    super.initState();
+    post = widget.post;
+  }
+
+  Widget _publisherActions() => PopupMenuButton<String>(
+    color: Colors.white,
+    icon: const Icon(FluentIcons.more_horizontal_48_regular, color: Colors.black,),
+    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+      PopupMenuItem<String>(
+        value: 'delete',
+        onTap: () => ZenDrivers.showDialog(
+          context: context,
+          dialog: _DeletePostConfirmDialog(
+            post: post,
+            service: _postService,
+            postDeleted: widget.postDeleted,
+          )
+        ),
+        child: const Text('Delete'),
+      ),
+      PopupMenuItem<String>(
+        value: 'edit',
+        onTap: () {
+          Navegations.persistentTo(context, withNavBar: false, widget: PostCreateView(
+            data: post,
+          )).then((value) {
+            if(value != null && value is Post && widget.postEdited != null) {
+              widget.postEdited!(post, value);
+              setState(() {
+                post = value;
+              });
+            }
+          });
+        },
+        child: const Text('Edit'),
+      )
+    ],
+  );
 
   Widget _publisher(BuildContext context) => AppPadding.widget(
     padding: AppPadding.topAndBottom(value: 4),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        GestureDetector(
+        InkWell(
           onTap: () => ListRecruiters.toRecruiterProfile(context, recruiter: post.recruiter),
           child: Row(
             children: <Widget>[
               ImageUtils.avatar(
                 url: post.recruiter.account.imageUrl,
                 radius: 16,
-                padding: AppPadding.horAndVer(vertical: 4, horizontal: 2)
+                padding: AppPadding.horAndVer(vertical: 4, horizontal: 2),
               ),
-              AppPadding.widget(
-                padding: AppPadding.leftAndRight(value: 4),
-                child: Text(
-                  '${post.recruiter.account.firstname} ${post.recruiter.account.lastname}',
-                  style: AppText.title,
-                )
-              )
+              Expanded(
+                child: AppPadding.widget(
+                  padding: AppPadding.leftAndRight(value: 4),
+                  child: Text(
+                    '${post.recruiter.account.firstname} ${post.recruiter.account.lastname}',
+                    style: AppText.title,
+                  )
+                ),
+              ),
+              if(credentials.isRecruiter && credentials.username == post.recruiter.account.username && !widget.showComments)
+                _publisherActions()
             ],
           ),
         ),
@@ -94,7 +154,7 @@ class PostView extends StatelessWidget {
                   if(post.image != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: ImageUtils.net(post.image!),
+                      child: ImageUtils.net(post.image!, errorBuilder: (context, object, stack) => const SizedBox()),
                     ),
                   AppPadding.widget(
                     padding: AppPadding.top(),
@@ -106,16 +166,16 @@ class PostView extends StatelessWidget {
                   _PostActions(
                     key: _actionsKey,
                     post: post,
-                    showComments: showComments,
-                    clickCallback: postClicked,
-                    commentCallback: postCommented,
-                    isDriver: isDriver,
+                    showComments: widget.showComments,
+                    clickCallback: widget.postClicked,
+                    commentCallback: widget.postCommented,
+                    isDriver: widget.isDriver,
                   )
                 ],
               ),
             ),
           ),
-          if(showComments)
+          if(widget.showComments)
             _PostComments(post: post, actionsKey: _actionsKey,)
         ],
       ),
@@ -123,6 +183,39 @@ class PostView extends StatelessWidget {
   }
 }
 
+class _DeletePostConfirmDialog extends StatelessWidget {
+  final Post post;
+  final PostService service;
+  final void Function(Post)? postDeleted;
+  const _DeletePostConfirmDialog({super.key, required this.post, required this.service, this.postDeleted});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      actions: [
+        AppButton(
+          onClick: () => Navegations.back(context),
+          child: const Text("Cancel"),
+        ),
+        AppAsyncButton(
+          future: () async => service.deletePost(post.id),
+          onSuccess: (response) {
+            AppToast.show(context, response.message);
+            if(response.valid) {
+              Navegations.back(context);
+              if(postDeleted != null) {
+                postDeleted!(post);
+              }
+            }
+          },
+          child: const Text("Delete"),
+          onError: (e) => AppToast.show(context, e.toString()),
+        )
+      ],
+      content: Text("Are you sure you want erase this post?", style: AppText.title,),
+    );
+  }
+}
 
 
 

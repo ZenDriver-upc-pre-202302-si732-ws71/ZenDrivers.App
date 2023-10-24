@@ -14,15 +14,35 @@ import 'package:zendrivers/shared/utils/styles.dart';
 class PostCreateView extends StatelessWidget {
   final _formKey = GlobalKey<FormBuilderState>();
   final _postService = PostService();
+
   final _imageUrl = MutableObject<String?>(null);
-  PostCreateView({super.key});
+
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _imageController = TextEditingController();
+
+  final Post? data;
+  bool get hasData => data != null;
+
+  PostCreateView({super.key, this.data}) {
+    if(hasData) {
+      _imageUrl.value = data?.image;
+      _titleController.text = data!.title;
+      _descriptionController.text = data!.description;
+      _imageController.text = data!.image ?? "";
+    }
+
+  }
 
   void _validateField(String name, String? value) => _formKey.currentState?.fields[name]?.validate();
   Future<EntityResponse<Post>> _createPost() async {
     if(_formKey.currentState?.validate() ?? false) {
       final fields = _formKey.currentState!.fields.map((key, value) => MapEntry(key, value.value));
-      fields.putIfAbsent("image", () => _imageUrl.value);
+      fields["image"] = _imageController.text;
       final request = PostSave.fromJson(fields);
+      if(hasData) {
+        return _postService.update(data!.id, request);
+      }
       return _postService.createPost(request);
     }
 
@@ -41,6 +61,7 @@ class PostCreateView extends StatelessWidget {
           child: Column(
             children: <Widget>[
               NamedTextField(
+                controller: _titleController,
                 name: "title",
                 label: "Post title",
                 hint: "Post title",
@@ -53,9 +74,11 @@ class PostCreateView extends StatelessWidget {
                 ],
               ),
               NamedTextField(
+                controller: _descriptionController,
                 name: "description",
                 label: "Description",
                 hint: "Description",
+                alignLabelWithHint: true,
                 onChanged: _validateField,
                 padding: AppPadding.all(),
                 maxLines: 6,
@@ -68,14 +91,15 @@ class PostCreateView extends StatelessWidget {
               AppPadding.widget(
                 padding: AppPadding.all(),
                 child: ImageUrlField(
+                  controller: _imageController,
                   name: "image",
                   label: "Image url",
                   hint: "Image url",
-                  maxLines: 8,
+                  maxLines: 2,
                   onChange: _validateField,
                   type: ImageUrlFieldType.replace,
                   onUrlError: (name, value) {
-                    _imageUrl.value = null;
+                    _imageUrl.value = "";
                   },
                   onUrlSuccessOrEmpty: (name, value) {
                     _imageUrl.value = value;
@@ -84,7 +108,7 @@ class PostCreateView extends StatelessWidget {
               ),
               AppAsyncButton(
                 future: _createPost,
-                child: const Text("Create"),
+                child: Text(hasData ? "Update" : "Create"),
                 onSuccess: (response) {
                   if(response.isValid) {
                     Navegations.back(context, response.value);

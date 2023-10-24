@@ -41,14 +41,13 @@ class ImageUtils {
     return defaultWidget ?? Container();
   }
 
-  static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, EdgeInsets? padding, void Function(String)? onError, Widget Function(String?, double, Widget)? avatarBuilder}) {
-    final effectiveDefaultIcon = defaultIcon ?? InputFields.person(color: Colors.black, size: radius * 1.5,);
+  static Widget avatar({String? url, double radius = 20, Widget? defaultIcon, Color? bordColor, Color? defaultIconColor, EdgeInsets? padding, void Function(String)? onError, Widget Function(String?, double, Widget)? avatarBuilder}) {
+    final effectiveDefaultIcon = defaultIcon ?? InputFields.person(color: defaultIconColor ?? Colors.black, size: radius * 1.5,);
     final isValidUrl = url != null;
-    ZenDrivers.prints(isValidUrl);
     return AppPadding.widget(
       padding: padding ?? EdgeInsets.zero,
       child: Container(
-        decoration: BoxDecorations.circle(color: Colors.grey),
+        decoration: BoxDecorations.circle(color: bordColor ?? Colors.grey),
         child: avatarBuilder != null ? avatarBuilder(url, radius, effectiveDefaultIcon) : CircleAvatarManage(
           radius: radius,
           foregroundImage: isValidUrl ? NetworkImage(url) : null,
@@ -174,9 +173,7 @@ class _RichFutureBuilderState<Ty extends Object?> extends State<RichFutureBuilde
   void _timeToBreak() {
     Timer(Duration(seconds: maxSeconds), () {
       if(!_break) {
-        setState(() {
-          _break = true;
-        });
+        _break = true;
       }
     });
   }
