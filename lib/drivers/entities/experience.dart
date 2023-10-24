@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:zendrivers/shared/services/http_service.dart';
+
 class DriverExperience {
   final int id;
   final String description;
@@ -29,5 +31,35 @@ class DriverExperience {
     "description": description,
     "startDate": startDate.toIso8601String(),
     "endDate": endDate.toIso8601String(),
+  };
+}
+
+class DriverExperienceRequest implements JsonSerializable {
+  final DateTime startDate;
+  final DateTime endDate;
+  final String description;
+
+  DriverExperienceRequest({
+    required this.startDate,
+    required this.endDate,
+    required this.description,
+  });
+
+  factory DriverExperienceRequest.fromRawJson(String str) => DriverExperienceRequest.fromJson(json.decode(str));
+
+  @override
+  String toRawJson() => json.encode(toJson());
+
+  factory DriverExperienceRequest.fromJson(Map<String, dynamic> json) => DriverExperienceRequest(
+    startDate: DateTime.parse(json["startDate"]),
+    endDate: DateTime.parse(json["endDate"]),
+    description: json["description"],
+  );
+
+  @override
+  Map<String, dynamic> toJson() => {
+    "startDate": startDate.toIso8601String(),
+    "endDate": endDate.toIso8601String(),
+    "description": description,
   };
 }

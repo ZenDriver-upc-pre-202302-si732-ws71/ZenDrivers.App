@@ -15,8 +15,7 @@ import 'package:zendrivers/shared/utils/widgets.dart';
 class Search extends StatelessWidget {
   final LicenseCategoryService _licenseCategoryService = LicenseCategoryService();
   LoginResponse get credentials => _licenseCategoryService.preferences.getCredentials();
-  final _licenseKey = GlobalKey<FormBuilderFieldDecorationState>();
-  final _experienceKey = GlobalKey<FormBuilderFieldDecorationState>();
+  final _formKey = GlobalKey<FormBuilderState>();
   Search({super.key});
 
   void _listDrivers(BuildContext context, {required String title, DriverFindRequest? request}) {
@@ -38,14 +37,14 @@ class Search extends StatelessWidget {
   }
 
   void _filterDrivers(BuildContext context) {
-    _licenseKey.currentState?.validate();
-    if(_licenseKey.currentState?.isValid ?? false) {
-      final licenseName = (_licenseKey.currentState?.value as LicenseCategory).name;
-      final experienceValue = _experienceKey.currentState?.value.toString();
+    if(_formKey.currentState?.validate() ?? false) {
+      final fields = _formKey.currentState!.fields.map((key, value) => MapEntry(key, value.value));
+      final licenseName = (fields["categories"] as LicenseCategory).name;
+      final experienceValue = fields["experience"].toString();
       DriverFindRequest request = DriverFindRequest(yearsOfExperience: 0, categoryName: licenseName);
       String effectiveTitle = "Drivers with license type $licenseName";
 
-      if(experienceValue != null && experienceValue.isNotEmpty) {
+      if(experienceValue.isNotEmpty) {
         effectiveTitle += " & $experienceValue years of experience";
         request.yearsOfExperience = int.tryParse(experienceValue.replaceAll("+", "")) ?? 0;
       }
@@ -54,6 +53,8 @@ class Search extends StatelessWidget {
     }
   }
 
+  void _validateField(String name) => _formKey.currentState?.fields[name]?.validate();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,58 +62,59 @@ class Search extends StatelessWidget {
       body: RichFutureBuilder(
         future: _licenseCategoryService.getAll(),
         builder: (categories) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(credentials.isDriver ? "Get to know drivers like you" : "Find your ideal driver",
-                style: const TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500
+          return FormBuilder(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(credentials.isDriver ? "Get to know drivers like you" : "Find your ideal driver",
+                  style: const TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w500
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              AppPadding.widget(
-                padding: AppPadding.horAndVer(vertical: 10, horizontal: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: AppDropdown(
-                        dropdownKey: _licenseKey,
-                        items: categories,
-                        onChange: (value) => _licenseKey.currentState?.validate(),
-                        padding: AppPadding.leftAndRight(),
-                        name: "categories",
-                        label: "Licence Type",
-                        hint: "Select a type",
-                        validator: FormBuilderValidators.required(errorText: "Select a type"),
-                        converter: (item) => DropdownMenuItem(value: item, child: Text(item.name)),
+                AppPadding.widget(
+                  padding: AppPadding.horAndVer(vertical: 10, horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: AppDropdown(
+                          items: categories,
+                          onChange: (value) => _validateField("categories"),
+                          padding: AppPadding.leftAndRight(),
+                          name: "categories",
+                          label: "Licence Type",
+                          hint: "Select a type",
+                          validator: FormBuilderValidators.required(errorText: "Select a type"),
+                          converter: (item) => DropdownMenuItem(value: item, child: Text(item.name)),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: AppDropdown(
-                        dropdownKey: _experienceKey,
-                        items: const ["0+", "1+", "3+", "5+", "10+"],
-                        padding: AppPadding.leftAndRight(),
-                        name: "experience",
-                        label: "Experience",
-                        hint: "Experience",
-                        current: "0+",
-                        converter: (item) => DropdownMenuItem(value: item, child: Text("$item years"),),
-                      ),
-                    )
-                  ],
+                      Expanded(
+                        child: AppDropdown(
+                          items: const ["0+", "1+", "3+", "5+", "10+"],
+                          padding: AppPadding.leftAndRight(),
+                          name: "experience",
+                          label: "Experience",
+                          hint: "Experience",
+                          current: "0+",
+                          converter: (item) => DropdownMenuItem(value: item, child: Text("$item years"),),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              AppButton(
-                onClick: () => _filterDrivers(context),
-                child: const Text("Filter"),
-              ),
-              AppButton(
-                onClick: () => _listDrivers(context, title: "All Drivers"),
-                child: const Text("View all drivers"),
-              )
-            ],
+                AppButton(
+                  onClick: () => _filterDrivers(context),
+                  child: const Text("Filter"),
+                ),
+                AppButton(
+                  onClick: () => _listDrivers(context, title: "All Drivers"),
+                  child: const Text("View all drivers"),
+                )
+              ],
+            ),
           );
         },
       ),

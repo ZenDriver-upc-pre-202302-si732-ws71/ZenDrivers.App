@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
 import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
+import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
 import 'package:http/http.dart' as http;
 
@@ -348,5 +350,37 @@ class OverflowColumnState extends State<OverflowColumn> {
   }
 }
 
+class AppDeleteConfirmDialog<Ty extends Object?> extends StatelessWidget {
+  final Future<MessageResponse> Function() deleteFuture;
+  final void Function()? afterDeleted;
+  final String name;
 
+  const AppDeleteConfirmDialog({super.key, required this.deleteFuture, this.afterDeleted, required this.name});
 
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      actions: [
+        AppButton(
+          onClick: () => Navegations.back(context),
+          child: const Text("Cancel"),
+        ),
+        AppAsyncButton(
+          future: deleteFuture,
+          onSuccess: (response) {
+            AppToast.show(context, response.message);
+            if(response.valid) {
+              if(afterDeleted != null) {
+                afterDeleted!();
+              }
+              Navegations.back(context);
+            }
+          },
+          child: const Text("Delete"),
+          onError: (e) => AppToast.show(context, e.toString()),
+        )
+      ],
+      content: Text("Are you sure you want erase this $name?", style: AppText.title,),
+    );
+  }
+}

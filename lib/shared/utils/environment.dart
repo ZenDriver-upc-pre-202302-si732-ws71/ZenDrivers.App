@@ -1,8 +1,10 @@
 import 'package:async_button_builder/async_button_builder.dart';
+import 'package:date_field/date_field.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:zendrivers/shared/utils/fields.dart';
 import 'package:zendrivers/shared/utils/navigation.dart';
 import 'package:zendrivers/shared/utils/styles.dart';
@@ -87,13 +89,15 @@ class ZenDrivers {
   }
 
   static Future<void> showDialog({required BuildContext context, required Widget dialog, Duration? transitionDuration}) => showGeneralDialog(
-      context: context,
-      pageBuilder: (context, first, second) => Container(),
-      transitionBuilder: (context, first, second, child) => Transform.scale(
-        scale: Curves.easeInOut.transform(first.value),
-        child: dialog,
-      ),
-      transitionDuration: transitionDuration ?? const Duration(milliseconds: 350)
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    context: context,
+    pageBuilder: (context, first, second) => Container(),
+    transitionBuilder: (context, first, second, child) => Transform.scale(
+      scale: Curves.easeInOut.transform(first.value),
+      child: dialog,
+    ),
+    transitionDuration: transitionDuration ?? const Duration(milliseconds: 300)
   );
 }
 
@@ -275,6 +279,39 @@ class AppTile extends StatelessWidget {
           onTap: onTap,
           child: _container(),
         ) : _container()
+    );
+  }
+}
+
+class AppDatePicker extends StatelessWidget {
+  final String label;
+  final Widget? prefixIcon;
+  final EdgeInsets? padding;
+  final List<FormFieldValidator<DateTime?>>? validators;
+  final void Function(DateTime) onDateSelected;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
+  const AppDatePicker({super.key, required this.label, this.prefixIcon, required this.onDateSelected, this.padding, this.validators, this.firstDate, this.lastDate});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPadding.widget(
+      padding: padding ?? EdgeInsets.zero,
+      child: DateTimeFormField(
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: InputDecoration(
+          border: InputFields.border,
+          enabledBorder: InputFields.border,
+          prefixIcon: prefixIcon ?? const Icon(FluentIcons.calendar_48_regular),
+          labelText: label,
+        ),
+        firstDate: firstDate,
+        lastDate: lastDate,
+        mode: DateTimeFieldPickerMode.date,
+        onDateSelected: onDateSelected,
+        validator: validators != null ? FormBuilderValidators.compose(validators!) : null,
+      ),
     );
   }
 }

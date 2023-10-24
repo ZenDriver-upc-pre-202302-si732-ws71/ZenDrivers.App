@@ -69,10 +69,14 @@ class _PostViewState extends State<PostView> {
         value: 'delete',
         onTap: () => ZenDrivers.showDialog(
           context: context,
-          dialog: _DeletePostConfirmDialog(
-            post: post,
-            service: _postService,
-            postDeleted: widget.postDeleted,
+          dialog: AppDeleteConfirmDialog(
+            deleteFuture: () async => _postService.deletePost(post.id),
+            name: "post",
+            afterDeleted: () {
+              if(widget.postDeleted != null) {
+                widget.postDeleted!(post);
+              }
+            },
           )
         ),
         child: const Text('Delete'),
@@ -182,40 +186,3 @@ class _PostViewState extends State<PostView> {
     );
   }
 }
-
-class _DeletePostConfirmDialog extends StatelessWidget {
-  final Post post;
-  final PostService service;
-  final void Function(Post)? postDeleted;
-  const _DeletePostConfirmDialog({super.key, required this.post, required this.service, this.postDeleted});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      actions: [
-        AppButton(
-          onClick: () => Navegations.back(context),
-          child: const Text("Cancel"),
-        ),
-        AppAsyncButton(
-          future: () async => service.deletePost(post.id),
-          onSuccess: (response) {
-            AppToast.show(context, response.message);
-            if(response.valid) {
-              Navegations.back(context);
-              if(postDeleted != null) {
-                postDeleted!(post);
-              }
-            }
-          },
-          child: const Text("Delete"),
-          onError: (e) => AppToast.show(context, e.toString()),
-        )
-      ],
-      content: Text("Are you sure you want erase this post?", style: AppText.title,),
-    );
-  }
-}
-
-
-
