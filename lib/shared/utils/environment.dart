@@ -63,8 +63,9 @@ class ZenDrivers {
 
   static const String defaultProfileUrl = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
 
-  //const String apiUrl = "http://localhost:5048/api/v1";
-  static const String apiUrl = "http://10.0.2.2:5048/api/v1";
+  //static const String apiUrl = "http://localhost:5048/api/v1";
+  //static const String apiUrl = "http://10.0.2.2:5048/api/v1";
+  static const String apiUrl = "https://zendrivers.azurewebsites.net/api/v1";
 
   static String joinUrl(String argument) => joinsUrl([argument]);
 

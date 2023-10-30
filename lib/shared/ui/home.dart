@@ -29,6 +29,7 @@ class Home extends StatelessWidget {
       body: ZenDrivers.sliverScroll(
         body: RichFutureBuilder(
           future: _postService.getAll(),
+          showException: false,
           builder: (posts) {
             return RefreshIndicator(
               onRefresh: () async => _postsKey.currentState?.update(await _postService.getAll()),

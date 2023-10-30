@@ -1,4 +1,5 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -12,7 +13,31 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
-  runApp(const ZenDriversApp());
+  final app = _buildRunnableApp(
+    isWeb: kIsWeb,
+    webWidth: 600,
+    app: const ZenDriversApp()
+  );
+  runApp(app);
+}
+
+Widget _buildRunnableApp({
+  required bool isWeb,
+  required double webWidth,
+  required Widget app,
+}) {
+  if (!isWeb) {
+    return app;
+  }
+
+  return Center(
+    child: ClipRect(
+      child: SizedBox(
+        width: webWidth,
+        child: app,
+      ),
+    ),
+  );
 }
 
 class ZenDriversApp extends StatelessWidget {

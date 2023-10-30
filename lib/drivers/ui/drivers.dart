@@ -28,42 +28,22 @@ class ListDrivers extends StatelessWidget {
 
   DriverService get _driverService => DriverService();
   final DriverFindRequest? request;
-  final _informationKey = GlobalKey<_DriverInformationState>();
-
-  ListDrivers({super.key, this.request});
+  const ListDrivers({super.key, this.request});
 
   static void toDriverView(BuildContext context, Driver driver, {bool showContact = true, bool withBar = true, void Function()? onInformationChange}) {
     Navegations.persistentTo(context, widget: DriverProfile(driver: driver, showContact: showContact, onInformationChange: onInformationChange,), withNavBar: withBar);
   }
 
-  Widget _driver(BuildContext context, Driver driver) => AppTile(
-    onTap: () => toDriverView(context, driver,
-      onInformationChange: () => _informationKey.currentState?.update()
-    ),
-    title: Row(
-      children: <Widget>[
-        ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
-        AppPadding.widget(
-          padding: AppPadding.left(),
-          child: Text("${driver.account.firstname} ${driver.account.lastname}",
-            style: AppText.title,
-          )
-        )
-      ],
-    ),
-    subtitle: _DriverInformation(key: _informationKey, driver: driver),
-  );
-
-
   @override
   Widget build(BuildContext context) {
     return RichFutureBuilder(
       future: request != null ? _driverService.find(request!) : _driverService.getAll(),
+      showException: false,
       builder: (drivers) {
         return SingleChildScrollView(
           child: Column(
             children: [
-              ...drivers.map((driver) => _driver(context, driver)),
+              ...drivers.map((driver) => _DriverTile(key: ObjectKey(driver), driver: driver)),
               AppPadding.widget()
             ],
           ),
@@ -86,7 +66,6 @@ class _DriverInformationState extends State<_DriverInformation> {
 
   void update() {
     setState(() {
-
     });
   }
 
@@ -107,3 +86,32 @@ class _DriverInformationState extends State<_DriverInformation> {
   }
 }
 
+
+
+class _DriverTile extends StatelessWidget {
+  final _informationKey = GlobalKey<_DriverInformationState>();
+  final Driver driver;
+  _DriverTile({super.key, required this.driver});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppTile(
+      onTap: () => ListDrivers.toDriverView(context, driver,
+        onInformationChange: () => _informationKey.currentState?.update()
+      ),
+      title: Row(
+        key: ObjectKey(driver),
+        children: <Widget>[
+          ImageUtils.avatar(url: driver.account.imageUrl, radius: 18),
+          AppPadding.widget(
+            padding: AppPadding.left(),
+            child: Text("${driver.account.firstname} ${driver.account.lastname}",
+              style: AppText.title,
+            )
+          )
+        ],
+      ),
+      subtitle: _DriverInformation(key: _informationKey, driver: driver),
+    );
+  }
+}

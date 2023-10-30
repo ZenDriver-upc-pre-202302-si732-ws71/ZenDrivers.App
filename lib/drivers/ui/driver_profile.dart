@@ -205,7 +205,7 @@ class _DriverExperiencesState extends State<_DriverExperiences> {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner =_credentials.isDriver && driver.account.username == _credentials.username;
+    final isOwner = _credentials.isDriver && driver.account.username == _credentials.username;
     return Column(
       children: <Widget>[
         _InformationAdder(
@@ -409,7 +409,7 @@ class _InformationAdder<Ty extends Object?> extends StatelessWidget {
 
   const _InformationAdder({super.key,
     required this.title,
-    this.permitAdd=false,
+    this.permitAdd = false,
     required this.firstField,
     required this.save,
     this.onSuccess,
@@ -419,8 +419,6 @@ class _InformationAdder<Ty extends Object?> extends StatelessWidget {
   });
 
 
-
-
   @override
   Widget build(BuildContext context) {
     return AppPadding.widget(
@@ -428,6 +426,7 @@ class _InformationAdder<Ty extends Object?> extends StatelessWidget {
         child: Row(
           children: [
             Expanded(child: Text(title, style: AppText.title,)),
+            if(permitAdd)
             IconButton(
               onPressed: () => ZenDrivers.showDialog(context: context, dialog: _AddInformationDialog(
                 permitAdd: permitAdd,
