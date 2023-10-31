@@ -82,7 +82,7 @@ class ZenDrivers {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(border),
             child: ImageUtils.net(url,
-                fit: BoxFit.fill
+              fit: BoxFit.fill
             ),
           )
       ),

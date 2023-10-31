@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:zendrivers/shared/entities/response.dart';
 import 'package:zendrivers/shared/utils/converters.dart';
+import 'package:zendrivers/shared/utils/environment.dart';
 import 'package:zendrivers/shared/utils/preferences.dart';
 
 
@@ -21,6 +22,10 @@ class HttpService {
     if(accepts) {
       headers[HttpHeaders.acceptHeader] = "application/json";
     }
+
+    headers[HttpHeaders.accessControlAllowOriginHeader] = "*";
+    headers[HttpHeaders.accessControlAllowMethodsHeader] = "GET,PUT,PATCH,POST,DELETE";
+    headers[HttpHeaders.accessControlAllowHeadersHeader] = "Origin, X-Requested-With, Content-Type, Accept";
     return headers;
   }
   Future<void> loadPreferences() async {
